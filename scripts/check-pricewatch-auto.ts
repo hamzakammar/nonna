@@ -125,6 +125,22 @@ async function main() {
   assert.ok(q.includes('nw["shop"="bakery"](around:2000,43.4643,-80.5204)'), q);
   ok("Overpass query: bakeries/pastry shops within 2km of the shop (free, no key)");
 
+  console.log("Petty Mode (parody)");
+  const { roastCompetitor, postRoast, RoastRefusedError } = await import("../src/lib/pricewatch/roast");
+  const roast = await roastCompetitor("comp_bakery", 3, 7);
+  assert.equal(roast.drafts.length, 3); assert.equal(roast.parody, true);
+  assert.ok(roast.drafts.every((d) => d.text.includes("The Bakery")));
+  assert.deepEqual(await roastCompetitor("comp_bakery", 3, 7), roast, "same seed → same drafts");
+  const spice2 = await roastCompetitor("comp_bakery", 2, 1);
+  assert.ok(spice2.drafts.some((d) => /\$\d+\.\d{2}/.test(d.text)) || spice2.drafts.some((d) => d.text.includes("3 of 5")), "uses real numbers");
+  ok(`3 spice-3 drafts about The Bakery, deterministic per seed: "${roast.drafts[0].text.slice(0, 60)}…"`);
+  const real = pw.listCompetitors().find((c) => c.source === "google")!;
+  await assert.rejects(roastCompetitor(real.id, 2), RoastRefusedError);
+  ok("real (non-mock) businesses are refused");
+  const veto = postRoast(3);
+  assert.equal(veto.posted, false); assert.ok(veto.nonna.length > 10);
+  ok(`'Post to Google' never posts: Nonna says "${veto.nonna}"`);
+
   console.log("\nAll automatic Price Watch checks passed ✅");
 }
 
