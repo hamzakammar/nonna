@@ -44,7 +44,7 @@ git pull && npm install
 npm run db:reset && npm run simulate -- --days 21 --seed 42
 npm run dev            # Chrome, full screen, zoom 110%
 ```
-- Screens: **Tab 1** `/kiosk` (tap "Start Nonna" once to unlock audio), **Tab 2** `/kiosk/notebook`, **Tab 3** `/pos`, **phone or second laptop** `/demo`.
+- Screens: **Tab 1** `/kiosk` (home), **Tab 2** `/kiosk/listen` (press "Start listening" once to allow the mic), **Tab 3** `/kiosk/notebook`, **Tab 4** `/pos`, **phone or second laptop** `/demo`.
 - **Speaker loud.** Nonna's voice is half the show.
 - `npm run db:reset` between rehearsals; the seed is built for this script (Gerald's card at 75% → 98% after the cream order, The Bakery's sale lever, 2 weeks of notebook history).
 
@@ -59,10 +59,10 @@ Slide the spice to 🌶️🌶️🌶️. Nonna drafts: *"I brought The Bakery's
 ## Readiness checklist (what must be true before we present)
 | # | Needed for | Status | Owner |
 |---|---|---|---|
-| 1 | Everything | Kiosk app **#8** merged (resolve `src/app/kiosk/page.tsx` conflict with main) | @markrozin |
-| 2 | 0:40 | Notebook **#11** (API → main) + **#12** (page → `lane4/granny-app`) merged | @hamzakammar / @markrozin |
-| 3 | 1:20 | Review bot **#9** merged + **Petty Mode panel** (spice slider, Generate 100, wall of cards, Post button) | @hamzakammar (API done) / Lane 4 (panel) |
-| 4 | 0:15, 1:35 | **Nonna speaks on the kiosk**: `speak()` the `reorder.proposed` question + the veto, and a "yes" (voice or big button) approves | @natelamarche + @markrozin |
+| 1 | Everything | ✅ Kiosk app **#8** merged. Lane 2's voice screen moved to **`/kiosk/listen`** ("Talk to Nonna" door) | done |
+| 2 | 0:40 | ✅ Notebook **#11** + **#12** merged: `/kiosk/notebook` | done |
+| 3 | 1:20 | ✅ Review bot API **#9** merged. ⏳ **Petty Mode panel** (spice slider, Generate 100, wall of cards, Post button) not built | Lane 4 (or @hamzakammar) |
+| 4 | 0:15, 1:35 | ⚠️ **Nonna speaks.** Lane 2 *removed* spoken output ("Replace speech output with listening commands"): `/kiosk/listen` hears and shows text, but says nothing. **Decide:** bring back browser TTS for the question + veto, or have the presenter voice Nonna (see "If something breaks"). Yes/No buttons already work there. | @natelamarche + team |
 | 5 | 0:15 | `/pos` till: tap tiles → `POST /api/sales` (still a placeholder) | Lane 4 / @Mo-Naq1 |
 | 6 | 0:15, 1:00 | `/demo` remote: **Sell 7 parfaits**, **The Bakery runs a sale** (`POST /api/pricewatch/refresh {"mockVariant":"sale"}`), **Reset** | Lane 4 (or @hamzakammar) |
 | 7 | 1:00 | Price-drop shown on screen (advice card) and spoken (`competitor.prices` → notify) | Lane 4 + @natelamarche |
