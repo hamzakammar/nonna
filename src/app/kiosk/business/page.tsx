@@ -59,7 +59,7 @@ export default function Business() {
             const ranked = [...rows].sort((a, b) => a.rank - b.rank);
             const top = ranked.slice(0, 3);
             const most = Math.max(1, ...ranked.map((r) => r.unitsSold));
-            if (ranked.length === 0) return <p className="text-[24px]">No sales yet this week.</p>;
+            if (ranked.every((p) => p.unitsSold === 0)) return <p className="text-[24px]">No sales yet this week. Check back after your first customers! 🥐</p>;
             return (
               <>
                 <div className="grid gap-4 sm:grid-cols-3">
