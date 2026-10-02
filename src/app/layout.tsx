@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Nunito, Young_Serif } from "next/font/google";
 import "./globals.css";
 
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
+const serif = Young_Serif({
+  variable: "--font-serif",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -19,8 +20,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${fredoka.variable} ${nunito.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${serif.variable} ${nunito.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col">
+        <div aria-hidden className="gingham" />
+        {children}
+      </body>
     </html>
   );
 }

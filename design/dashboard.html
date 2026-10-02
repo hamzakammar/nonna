@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Back office dashboard, fall classic</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Nunito:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#f8efdd}
+.page>div{margin:0 auto}
+a{color:#3b2416;text-decoration:none}a:hover{color:#a94f1d}
+</style>
+</head>
+<body>
+<div class="page">
+<div style="min-height: 100vh; box-sizing: border-box; background: #f8efdd; color: #3b2416; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 16px">
+
+<div aria-hidden="true" style="height: 16px; background-color: #a94f1d; background-image: repeating-linear-gradient(90deg, rgba(255,250,240,0.38) 0px, rgba(255,250,240,0.38) 8px, transparent 8px, transparent 16px), repeating-linear-gradient(0deg, rgba(59,36,22,0.28) 0px, rgba(59,36,22,0.28) 8px, transparent 8px, transparent 16px)"></div>
+
+<div style="max-width: 1320px; margin: 0 auto; box-sizing: border-box; padding: 26px clamp(16px, 3vw, 40px) 48px; display: flex; flex-direction: column; gap: 22px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #a94f1d">Nonna's bakery</div>
+<h1 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 38px; font-weight: 400; line-height: 1.1">Back office</h1>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 0 16px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 999px; font-size: 16px; font-weight: 800">
+<div style="display: flex; gap: 4px">
+<div style="width: 10px; height: 10px; border-radius: 50%; background: #c8642c"></div>
+<div style="width: 10px; height: 10px; border-radius: 50%; background: #c8642c"></div>
+<div style="width: 10px; height: 10px; border-radius: 50%; background: #e6d3b3"></div>
+<div style="width: 10px; height: 10px; border-radius: 50%; background: #e6d3b3"></div>
+</div>
+<div>Right now: a steady trickle</div>
+</div>
+<a href="home.html" style="display: flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 0 18px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-size: 16px; font-weight: 800">Kiosk</a>
+<a href="till.html" style="display: flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 0 18px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-size: 16px; font-weight: 800">Till</a>
+<a href="demo.html" style="display: flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 0 18px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-size: 16px; font-weight: 800">Demo</a>
+</div>
+</header>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 22px">
+
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 22px 24px 24px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 18px; box-shadow: 0 3px 0 #e6d3b3">
+<div style="display: flex; align-items: center; gap: 12px">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 24px; font-weight: 400">Needs a yes</h2>
+<div style="min-width: 28px; height: 28px; box-sizing: border-box; padding: 0 8px; display: flex; align-items: center; justify-content: center; background: #8a3324; border-radius: 999px; font-size: 15px; font-weight: 800; color: #fffbf2">1</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 20px">
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 4px">
+<div style="font-family: 'Young Serif', Georgia, serif; font-size: 26px; line-height: 1.15">4 litres of heavy cream</div>
+<div style="font-size: 17px; font-weight: 800">from Gerald's Dairy</div>
+<div style="font-size: 16px; font-weight: 600; color: #5c3d27">Running low: 1.49 litres left, reorder point 1.5 litres. Arrives in 12 hours.</div>
+</div>
+<div style="font-family: 'Young Serif', Georgia, serif; font-size: 38px; line-height: 1">$28.00</div>
+</div>
+<div style="padding: 10px 14px; background: #f8efdd; border-radius: 12px; font-size: 15px; font-weight: 700; color: #5c3d27">Over the $25 autopilot cap, so Nonna asks first.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="min-height: 46px; padding: 0 24px; background: #4c5a2c; border: 0; border-radius: 999px; box-shadow: 0 3px 0 #333f1c; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 17px; font-weight: 800; color: #fffbf2; cursor: pointer">Approve</button>
+<button type="button" style="min-height: 46px; padding: 0 24px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 17px; font-weight: 800; color: #3b2416; cursor: pointer">Cancel</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 22px 24px 24px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 18px; box-shadow: 0 3px 0 #e6d3b3">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 24px; font-weight: 400">Live feed</h2>
+<div style="display: flex; flex-direction: column; gap: 0px">
+<div style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1.5px dotted #c9ad84">
+<div style="flex-shrink: 0; width: 64px; padding: 2px 0; text-align: center; background: #f3e3b3; border-radius: 999px; font-size: 13px; font-weight: 800; color: #5a4208">nudge</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 16px; font-weight: 700">Reorder proposed: 4 litres of heavy cream from Gerald's Dairy, $28.00. Waiting for a yes.</div>
+<div style="font-size: 15px; font-style: italic; color: #5c3d27">"Mamma mia, the cream is getting low. Should I order 4 litres from Gerald?"</div>
+</div>
+</div>
+<div style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1.5px dotted #c9ad84">
+<div style="flex-shrink: 0; width: 64px; padding: 2px 0; text-align: center; background: #f3e3b3; border-radius: 999px; font-size: 13px; font-weight: 800; color: #5a4208">nudge</div>
+<div style="font-size: 16px; font-weight: 700">Heavy cream is low: 1.49 litres left.</div>
+</div>
+<div style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1.5px dotted #c9ad84">
+<div style="flex-shrink: 0; width: 64px; padding: 2px 0; text-align: center; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">info</div>
+<div style="font-size: 16px; font-weight: 700">Sale on the till: 7 × Fall Parfait, $52.50.</div>
+</div>
+<div style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 0">
+<div style="flex-shrink: 0; width: 64px; padding: 2px 0; text-align: center; background: #f3e3b3; border-radius: 999px; font-size: 13px; font-weight: 800; color: #5a4208">nudge</div>
+<div style="font-size: 16px; font-weight: 700">Mixed berries: 2.2 kg goes off in 20 hours.</div>
+</div>
+</div>
+</section>
+
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 22px 24px 18px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 18px; box-shadow: 0 3px 0 #e6d3b3">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 24px; font-weight: 400">Inventory</h2>
+<div style="overflow-x: auto">
+<div style="min-width: 940px; display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; padding: 8px 4px; border-bottom: 1.5px solid #3b2416; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #5c3d27">
+<div>Ingredient</div>
+<div>On hand</div>
+<div>Level</div>
+<div>Goes off</div>
+<div>Supplier</div>
+<div>Reorder</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Heavy cream</div>
+<div style="font-variant-numeric: tabular-nums">1.49 litres</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 27%; height: 100%; background: #d9a441; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #f3e3b3; border-radius: 999px; font-size: 13px; font-weight: 800; color: #5a4208">Low</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 4 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Gerald's Dairy</div>
+
+</div>
+<div>
+
+
+<div style="font-size: 14px; font-weight: 800; color: #8a3324">Waiting for a yes</div>
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Whole milk</div>
+<div style="font-variant-numeric: tabular-nums">9 litres</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 82%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 2 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Maple Hill Creamery</div>
+
+<div style="padding: 1px 9px; border: 1.5px solid #6b7a4a; border-radius: 999px; font-size: 12px; font-weight: 800; color: #4c5a2c">local</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Greek yogurt</div>
+<div style="font-variant-numeric: tabular-nums">4.95 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 71%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 8 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Gerald's Dairy</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Mascarpone</div>
+<div style="font-variant-numeric: tabular-nums">1.8 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 67%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 6 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Gerald's Dairy</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Butter</div>
+<div style="font-variant-numeric: tabular-nums">5 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 91%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 25 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>BulkMart Wholesale</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Apples</div>
+<div style="font-variant-numeric: tabular-nums">7 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 88%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 11 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Rosa's Orchard</div>
+
+<div style="padding: 1px 9px; border: 1.5px solid #6b7a4a; border-radius: 999px; font-size: 12px; font-weight: 800; color: #4c5a2c">local</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Mixed berries</div>
+<div style="font-variant-numeric: tabular-nums">2.2 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 55%; height: 100%; background: #d9824a; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #8a3324; font-weight: 800">in 20 hours</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Rosa's Orchard</div>
+
+<div style="padding: 1px 9px; border: 1.5px solid #6b7a4a; border-radius: 999px; font-size: 12px; font-weight: 800; color: #4c5a2c">local</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Pumpkin purée</div>
+<div style="font-variant-numeric: tabular-nums">2.58 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 65%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 6 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Dave's Pumpkin Patch</div>
+
+<div style="padding: 1px 9px; border: 1.5px solid #6b7a4a; border-radius: 999px; font-size: 12px; font-weight: 800; color: #4c5a2c">local</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Flour</div>
+<div style="font-variant-numeric: tabular-nums">15 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 100%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 170 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>BulkMart Wholesale</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Sugar</div>
+<div style="font-variant-numeric: tabular-nums">8 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 100%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 345 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>BulkMart Wholesale</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Granola</div>
+<div style="font-variant-numeric: tabular-nums">3.22 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 81%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 55 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>BulkMart Wholesale</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Eggs</div>
+<div style="font-variant-numeric: tabular-nums">90</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 79%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 19 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Rosa's Orchard</div>
+
+<div style="padding: 1px 9px; border: 1.5px solid #6b7a4a; border-radius: 999px; font-size: 12px; font-weight: 800; color: #4c5a2c">local</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Parfait cups</div>
+<div style="font-variant-numeric: tabular-nums">243</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 100%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in more than a year</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>BulkMart Wholesale</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 0.9fr 1.7fr 1.1fr 1.8fr 150px; gap: 14px; align-items: center; min-height: 52px; padding: 0 4px; border-bottom: 1.5px dotted #c9ad84; font-size: 16px; font-weight: 700">
+<div style="font-weight: 800">Espresso beans</div>
+<div style="font-variant-numeric: tabular-nums">2.6 kg</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; max-width: 110px; height: 10px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 79%; height: 100%; background: #8a9a5b; border-radius: 999px"></div>
+</div>
+<div style="padding: 2px 12px; background: #dfe6cf; border-radius: 999px; font-size: 13px; font-weight: 800; color: #333f1c">OK</div>
+</div>
+<div style="color: #3b2416; font-weight: 700">in 26 days</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px">
+<div>Bean There Roasters</div>
+
+<div style="padding: 1px 9px; border: 1.5px solid #6b7a4a; border-radius: 999px; font-size: 12px; font-weight: 800; color: #4c5a2c">local</div>
+
+</div>
+<div>
+
+<button type="button" style="min-height: 44px; padding: 0 20px; background: #fffbf2; border: 1.5px solid #b89a6f; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 15px; font-weight: 800; color: #3b2416; cursor: pointer">Order</button>
+
+
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 22px">
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 22px 24px 24px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 18px; box-shadow: 0 3px 0 #e6d3b3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 24px; font-weight: 400">Best sellers this week</h2>
+<div style="padding: 1px 10px; border: 1.5px solid #b89a6f; border-radius: 999px; font-size: 12px; font-weight: 800; color: #5c3d27">Sample numbers</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Croissant</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 100%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">142</div>
+<div aria-label="steady" style="font-size: 17px; color: #5c3d27">→</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Fall Parfait</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 69%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">98</div>
+<div aria-label="going up" style="font-size: 17px; color: #4c5a2c">↑</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Latte</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 61%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">87</div>
+<div aria-label="steady" style="font-size: 17px; color: #5c3d27">→</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Espresso</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 45%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">64</div>
+<div aria-label="steady" style="font-size: 17px; color: #5c3d27">→</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Berry Parfait</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 36%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">51</div>
+<div aria-label="steady" style="font-size: 17px; color: #5c3d27">→</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Tiramisu Cup</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 27%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">38</div>
+<div aria-label="going up" style="font-size: 17px; color: #4c5a2c">↑</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Pumpkin Loaf (slice)</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 20%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">29</div>
+<div aria-label="steady" style="font-size: 17px; color: #5c3d27">→</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 800">
+<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Apple Pie (slice)</div>
+<div style="height: 12px; background: #f1e2c8; border-radius: 999px; overflow: hidden">
+<div style="width: 12%; height: 100%; background: #c8642c; border-radius: 999px"></div>
+</div>
+<div style="text-align: right; font-variant-numeric: tabular-nums">17</div>
+<div aria-label="going down" style="font-size: 17px; color: #8a3324">↓</div>
+</div>
+
+</div>
+<div style="font-size: 15px; font-weight: 700; color: #5c3d27">Money in this week: $2,693.50</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 22px 24px 24px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 18px; box-shadow: 0 3px 0 #e6d3b3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 24px; font-weight: 400">When it gets busy</h2>
+<div style="padding: 1px 10px; border: 1.5px solid #b89a6f; border-radius: 999px; font-size: 12px; font-weight: 800; color: #5c3d27">Sample numbers</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; font-size: 12px; font-weight: 800; color: #5c3d27; text-align: center">
+<div></div>
+<div>7</div>
+<div>8</div>
+<div>9</div>
+<div>10</div>
+<div>11</div>
+<div>12</div>
+<div>1</div>
+<div>2</div>
+<div>3</div>
+<div>4</div>
+<div>5</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center">
+<div style="font-size: 13px; font-weight: 800">Mon</div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center">
+<div style="font-size: 13px; font-weight: 800">Tue</div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center">
+<div style="font-size: 13px; font-weight: 800">Wed</div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center">
+<div style="font-size: 13px; font-weight: 800">Thu</div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center">
+<div style="font-size: 13px; font-weight: 800">Fri</div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #a94f1d"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center">
+<div style="font-size: 13px; font-weight: 800">Sat</div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #a94f1d"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #a94f1d"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #a94f1d"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #a94f1d"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 34px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center">
+<div style="font-size: 13px; font-weight: 800">Sun</div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #d98a3f"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #e9bd6b"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #f3e0b0"></div>
+
+<div style="height: 26px; box-sizing: border-box; border: 1px solid #d8c2a0; border-radius: 6px; background: #fbf3e4"></div>
+
+</div>
+
+</div>
+<div style="font-size: 15px; font-weight: 700; color: #5c3d27">Busiest: Saturday around noon. Quietest day: Monday.</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 22px 24px 24px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 18px; box-shadow: 0 3px 0 #e6d3b3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 24px; font-weight: 400">Needs a little love</h2>
+<div style="padding: 1px 10px; border: 1.5px solid #b89a6f; border-radius: 999px; font-size: 12px; font-weight: 800; color: #5c3d27">Sample numbers</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'Young Serif', Georgia, serif; font-size: 20px">Apple Pie (slice)</div>
+<div style="font-size: 16px; font-weight: 700">31 slices in the last 14 days, down 42% from 53.</div>
+<div style="font-size: 15px; font-style: italic; color: #5c3d27">"It still sells in the afternoon. Try it warm with a little cream after 2 pm."</div>
+</div>
+<div style="border-top: 1.5px dotted #c9ad84"></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'Young Serif', Georgia, serif; font-size: 20px">Fall Parfait</div>
+<div style="font-size: 16px; font-weight: 700">A star: 98 sold this week, up from 61.</div>
+<div style="font-size: 15px; font-style: italic; color: #5c3d27">"Make a few more on Saturday morning, it sells out by noon."</div>
+</div>
+</section>
+
+</div>
+
+</div>
+</div>
+</div>
+</body>
+</html>

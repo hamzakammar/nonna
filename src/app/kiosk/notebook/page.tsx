@@ -49,7 +49,7 @@ function Meter({ pct, label }: { pct: number; label: string }) {
   const clamped = Math.min(100, Math.max(0, pct));
   return (
     <div className="flex flex-col gap-1">
-      <div className="h-6 w-full overflow-hidden rounded-full border-4 border-cocoa bg-white" role="meter" aria-valuenow={clamped} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
+      <div className="h-6 w-full overflow-hidden rounded-full border-[1.5px] border-linen bg-white" role="meter" aria-valuenow={clamped} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
         <div className={`h-full ${clamped >= 80 ? "bg-berry" : clamped >= 50 ? "bg-butter-deep" : "bg-sage-deep"}`} style={{ width: `${clamped}%` }} />
       </div>
       <div className="text-[18px] font-bold">{label}</div>
@@ -114,7 +114,7 @@ export default function NotebookPage() {
                 <div className="text-[20px] font-bold">❄️ Frozen: no orders go through</div>
               )}
               <button
-                className="self-start rounded-full border-4 border-cocoa bg-white px-4 py-1 text-[18px] font-bold text-cocoa shadow-[3px_3px_0_var(--cocoa)] transition-transform hover:-translate-y-0.5"
+                className="self-start rounded-full border-[1.5px] border-linen bg-white px-4 py-1 text-[18px] font-bold text-cocoa shadow-[3px_3px_0_var(--cocoa)] transition-transform hover:-translate-y-0.5"
                 onClick={() => setFreezing(c)}
               >
                 {c.state === "ACTIVE" ? "❄️ Freeze card" : "🔥 Unfreeze"}

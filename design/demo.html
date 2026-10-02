@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo control, fall classic</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Nunito:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#f8efdd}
+.page>div{margin:0 auto}
+a{color:#a94f1d}a:hover{color:#3b2416}
+</style>
+</head>
+<body>
+<div class="page">
+<div style="min-height: 100vh; box-sizing: border-box; background: #f8efdd; color: #3b2416; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 18px">
+
+<div aria-hidden="true" style="height: 16px; background-color: #a94f1d; background-image: repeating-linear-gradient(90deg, rgba(255,250,240,0.38) 0px, rgba(255,250,240,0.38) 8px, transparent 8px, transparent 16px), repeating-linear-gradient(0deg, rgba(59,36,22,0.28) 0px, rgba(59,36,22,0.28) 8px, transparent 8px, transparent 16px)"></div>
+
+<div style="max-width: 860px; margin: 0 auto; box-sizing: border-box; padding: 28px clamp(16px, 4vw, 40px) 44px; display: flex; flex-direction: column; gap: 22px">
+
+<header style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 15px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #a94f1d">Nonna's bakery · presenter</div>
+<h1 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 40px; font-weight: 400; line-height: 1.1">Demo control</h1>
+</header>
+
+<section style="display: flex; flex-direction: column; gap: 18px; padding: 24px 26px 26px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 20px; box-shadow: 0 3px 0 #e6d3b3">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 26px; font-weight: 400">Demo clock</h2>
+<div style="font-size: 16px; font-weight: 700; color: #5c3d27">The whole shop runs on this time</div>
+</div>
+<div style="font-family: 'Young Serif', Georgia, serif; font-size: clamp(36px, 7vw, 60px); line-height: 1.05">Friday, 9:00 am</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 12px">
+<button type="button" style="min-height: 60px; padding: 0 18px; background: #f8efdd; border: 1.5px solid #b89a6f; border-radius: 16px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 20px; font-weight: 800; color: #3b2416; cursor: pointer">+1 hour</button>
+<button type="button" style="min-height: 60px; padding: 0 18px; background: #f8efdd; border: 1.5px solid #b89a6f; border-radius: 16px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 20px; font-weight: 800; color: #3b2416; cursor: pointer">+1 day</button>
+<button type="button" style="min-height: 60px; padding: 0 18px; background: #f8efdd; border: 1.5px solid #b89a6f; border-radius: 16px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 20px; font-weight: 800; color: #3b2416; cursor: pointer">Jump to Saturday 11:00</button>
+<button type="button" style="min-height: 60px; padding: 0 18px; background: transparent; border: 1.5px dashed #b89a6f; border-radius: 16px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 20px; font-weight: 800; color: #5c3d27; cursor: pointer">Reset clock</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 24px 26px 26px; background: #fffbf2; border: 1.5px solid #d8c2a0; border-radius: 20px; box-shadow: 0 3px 0 #e6d3b3">
+<h2 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-size: 26px; font-weight: 400">Story buttons</h2>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 16px 18px; background: #f8efdd; border: 1.5px solid #d8c2a0; border-radius: 16px">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 21px; font-weight: 800">Fire a rush</div>
+<div style="font-size: 17px; font-weight: 600; color: #5c3d27">20 random sales over a few seconds. The rush meter goes red and Nonna keeps quiet.</div>
+</div>
+<button type="button" style="min-height: 60px; padding: 0 28px; background: #a94f1d; border: 0; border-radius: 999px; box-shadow: 0 4px 0 #7c3812; font-family: 'Young Serif', Georgia, serif; font-size: 22px; color: #fffbf2; cursor: pointer">Fire a rush</button>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 16px 18px; background: #f8efdd; border: 1.5px solid #d8c2a0; border-radius: 16px">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 21px; font-weight: 800">+1 day (watch the berries go off)</div>
+<div style="font-size: 17px; font-weight: 600; color: #5c3d27">Mixed berries expire in about 20 hours, so one day forward logs them as waste.</div>
+</div>
+<button type="button" style="min-height: 60px; padding: 0 28px; background: #a94f1d; border: 0; border-radius: 999px; box-shadow: 0 4px 0 #7c3812; font-family: 'Young Serif', Georgia, serif; font-size: 22px; color: #fffbf2; cursor: pointer">Skip a day</button>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 16px 18px; background: #f8efdd; border: 1.5px solid #d8c2a0; border-radius: 16px">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 21px; font-weight: 800">Trade war</div>
+<div style="font-size: 17px; font-weight: 600; color: #5c3d27">Gerald's Dairy raises heavy cream by 36%. Nonna works out the margin hit and whether to switch to Maple Hill Creamery.</div>
+</div>
+<button type="button" style="min-height: 60px; padding: 0 28px; background: #8a3324; border: 0; border-radius: 999px; box-shadow: 0 4px 0 #5e2117; font-family: 'Young Serif', Georgia, serif; font-size: 22px; color: #fffbf2; cursor: pointer">Start trade war</button>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 20px 26px; border: 1.5px dashed #b89a6f; border-radius: 20px">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 21px; font-weight: 800">Reset world</div>
+<div style="font-size: 17px; font-weight: 600; color: #5c3d27">Wipes the database and re-seeds the catalogue and starting stock.</div>
+</div>
+<button type="button" style="min-height: 60px; padding: 0 28px; background: #fffbf2; border: 1.5px solid #8a3324; border-radius: 999px; font-family: 'Nunito', ui-rounded, system-ui, sans-serif; font-size: 20px; font-weight: 800; color: #8a3324; cursor: pointer">Reset world</button>
+</section>
+
+</div>
+</div>
+</div>
+</body>
+</html>
