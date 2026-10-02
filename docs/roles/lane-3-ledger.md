@@ -28,7 +28,7 @@ Most of the **differentiators** live in your lane. See the charter § "What make
 
 ## P1: makes the demo great
 - [x] **`gentleTruths(days)`**: for each `struggling` product, a `facts` string with exact numbers (*"Apple Pie: 31 slices in the last 14 days, down 42% from 53. Margin $3.10/slice."*) and one `suggestion` (time-of-day it still sells, pairing with an overstocked ingredient, smaller batch, price test). Also one compliment for the top `star`. Lane 2 makes it sound like Nonna.
-- [x] **`prepForecast(date)`**: per product, average of the same weekday over the last 3 weeks, adjusted by trend, minus yesterday's leftovers if known → *"Make 14 Fall Parfaits tomorrow (avg of the last 3 Saturdays: 12, 13, 16)"*. Leftovers aren't logged anywhere yet, so nothing is subtracted for them.
+- [x] **`prepForecast(date)`**: per product, average of the same weekday over the last 3 weeks, adjusted by trend, minus yesterday's leftovers if known → *"Make 14 Fall Parfaits tomorrow (avg of the last 3 Saturdays: 12, 13, 16)"*. Leftovers come from the make-list (morning batch − units sold off the shelf), are subtracted once the day before has closed, and stay on the shelf for one more day (`shelfLeft` / `carriedInto` in analytics).
 - [x] **`wasteSummary(days)`**: $ lost per ingredient from `waste_events`.
 - [x] **End of day**: on `clock.changed` crossing 18:00, emit `insight.ready` with the truths.
 
