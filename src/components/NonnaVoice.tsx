@@ -1,10 +1,10 @@
 "use client";
-// Nonna's voice on the kiosk: her latest message, giant YES / NO when she asks something, and the mic.
-// Lane 2 owns the ears (useNonnaEars) and the brains (/api/voice); this is only the look.
+// Nonna's voice on the kiosk home: her latest message as the headline, giant Yes / No when she asks
+// something, and the mic. Lane 2 owns the ears (useNonnaEars) and the brains (/api/voice); this is only the look.
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { NonnaNotification, VoiceResponse } from "@/lib/types";
 import { useNonnaEars } from "@/lib/voice/client/useNonnaEars";
-import { NonnaSays } from "./Nonna";
+import { Icon } from "./icons";
 
 const noop = () => () => {};
 
@@ -57,38 +57,41 @@ export function NonnaVoice({ idle, onChange }: { idle: string; onChange?: () => 
   const inBrowser = useSyncExternalStore(noop, () => true, () => false);
   const ears = useNonnaEars({ enabled: micOn, expectingAnswer: pending !== null, onCommand: answer });
   const question = pending?.awaitingAnswer?.question;
+  const headline = question ?? message ?? idle;
 
   return (
-    <section className="flex flex-col gap-5">
-      <NonnaSays size={150} mood={question ? "happy" : "proud"}>
-        {question ?? message ?? idle}
-      </NonnaSays>
+    <header className="flex flex-col gap-4 pt-1.5">
+      <div className="text-[20px] font-extrabold uppercase tracking-[0.14em] text-rust">Nonna&apos;s bakery</div>
+      <h1 className={`m-0 max-w-[900px] leading-[1.08] [text-wrap:pretty] ${headline.length > 70 ? "text-[44px]" : "text-[58px]"}`}>{headline}</h1>
 
       {question && (
-        <div className="pop-in flex flex-wrap gap-5 sm:pl-[170px]">
-          <button className="big-btn bg-sage px-12 text-[36px]" disabled={busy} onClick={() => answer("yes")}>
-            <span aria-hidden>👍</span> Yes
+        <div className="pop-in flex gap-4 pt-1">
+          <button className="big-btn btn-go px-12" disabled={busy} onClick={() => answer("yes")}>
+            <Icon name="check" size={30} stroke={2.4} /> Yes
           </button>
-          <button className="big-btn bg-white px-12 text-[36px]" disabled={busy} onClick={() => answer("no")}>
-            <span aria-hidden>✋</span> No
+          <button className="big-btn px-12" disabled={busy} onClick={() => answer("no")}>
+            No
           </button>
         </div>
       )}
 
       {inBrowser && ears.supported && (
-        <div className="flex flex-wrap items-center gap-4 sm:pl-[170px]">
-          <button className={`big-btn min-h-[64px] text-[24px] ${micOn ? "bg-berry text-white" : "bg-white"}`} onClick={() => setMicOn((on) => !on)}>
-            <span aria-hidden>{micOn ? "👂" : "🎤"}</span> {micOn ? "Nonna is listening" : "Talk to Nonna"}
+        <div className="flex items-center gap-4">
+          <button
+            className={`big-btn min-h-[60px] text-[22px] ${micOn ? "border-rust bg-tint-rust" : ""}`}
+            onClick={() => setMicOn((on) => !on)}
+          >
+            <Icon name={micOn ? "ear" : "mic"} className="text-rust" /> {micOn ? "Nonna is listening" : "Talk to Nonna"}
           </button>
           {!micOn && (
-            <button className="big-btn min-h-[64px] bg-white text-[24px]" disabled={busy} onClick={ears.listenOnce}>
-              <span aria-hidden>🗣️</span> Tap &amp; talk
+            <button className="big-btn min-h-[60px] text-[22px]" disabled={busy} onClick={ears.listenOnce}>
+              Tap &amp; talk
             </button>
           )}
-          {micOn && <span className="text-[22px] font-bold">Say &ldquo;Nonna&rdquo; and ask me anything</span>}
-          {ears.lastHeard && <span className="text-[20px] text-cocoa-soft">I heard: &ldquo;{ears.lastHeard}&rdquo;</span>}
+          {micOn && <span className="text-[22px] font-bold text-ink-soft">Say &ldquo;Nonna&rdquo; and ask me anything</span>}
+          {ears.lastHeard && <span className="text-[20px] font-semibold text-ink-soft">I heard: &ldquo;{ears.lastHeard}&rdquo;</span>}
         </div>
       )}
-    </section>
+    </header>
   );
 }

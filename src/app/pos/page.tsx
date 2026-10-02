@@ -45,7 +45,7 @@ export default function Pos() {
     <main className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-5 py-6 lg:grid-cols-[1fr_380px]">
       <section className="flex flex-col gap-5">
         <header className="flex flex-wrap items-center gap-4">
-          <Link href="/kiosk" className="big-btn min-h-[60px] bg-white text-[22px]">🏠 Home</Link>
+          <Link href="/kiosk" className="big-btn min-h-[60px] text-[22px]">🏠 Home</Link>
           <h1 className="text-[40px] font-bold">🧾 Till</h1>
         </header>
         {menu.status === "loading" && <Loading />}
@@ -57,7 +57,7 @@ export default function Pos() {
               <span className="text-center leading-tight">{m.name}</span>
               <span className="font-display text-[24px] text-terracotta-deep">{money(m.priceCents)}</span>
               {cart[m.id] && (
-                <span className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-full border-[3px] border-cocoa bg-berry font-display text-[22px] text-white">
+                <span className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-full border-[1.5px] border-linen bg-berry font-display text-[22px] text-white">
                   {cart[m.id]}
                 </span>
               )}
@@ -74,17 +74,17 @@ export default function Pos() {
             <li key={item.id} className="flex items-center gap-3 text-[22px] font-bold">
               <span className="text-3xl">{item.emoji}</span>
               <span className="flex-1">{qty} × {item.name}</span>
-              <button type="button" className="h-10 w-10 rounded-full border-[3px] border-cocoa bg-white text-[22px]" aria-label={`One less ${item.name}`} onClick={() => add(item.id, -1)}>−</button>
+              <button type="button" className="h-10 w-10 rounded-full border-[1.5px] border-linen bg-white text-[22px]" aria-label={`One less ${item.name}`} onClick={() => add(item.id, -1)}>−</button>
             </li>
           ))}
         </ul>
-        <div className="flex items-baseline justify-between border-t-4 border-dashed border-cocoa pt-3">
+        <div className="flex items-baseline justify-between border-t-2 border-dashed border-linen pt-3">
           <span className="text-[26px] font-bold">Total</span>
           <span className="font-display text-[44px] font-bold">{money(total)}</span>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <button className="big-btn bg-sky text-[26px]" disabled={busy || lines.length === 0} onClick={() => pay("card")}>💳 Card</button>
-          <button className="big-btn bg-sage text-[26px]" disabled={busy || lines.length === 0} onClick={() => pay("cash")}>💵 Cash</button>
+          <button className="big-btn btn-go text-[26px]" disabled={busy || lines.length === 0} onClick={() => pay("cash")}>💵 Cash</button>
         </div>
         {flash && <p className="pop-in text-center text-[24px] font-bold">{flash}</p>}
       </aside>

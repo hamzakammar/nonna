@@ -80,7 +80,7 @@ export default function Demo() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-6">
       <header className="flex flex-wrap items-center gap-4">
-        <Link href="/kiosk" className="big-btn min-h-[60px] bg-white text-[22px]">🏠 Kiosk</Link>
+        <Link href="/kiosk" className="big-btn min-h-[60px] text-[22px]">🏠 Kiosk</Link>
         <h1 className="text-[40px] font-bold">🎬 Demo control</h1>
       </header>
 

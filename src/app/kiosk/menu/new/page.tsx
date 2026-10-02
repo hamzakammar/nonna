@@ -40,7 +40,7 @@ function NumberBox({ value, onChange, unitWord, step, placeholder }: { value: nu
   const bump = (d: number) => onChange(Math.max(0, Math.round(((value ?? 0) + d) * 100) / 100));
   return (
     <div className="flex flex-wrap items-center gap-4">
-      <button type="button" className="big-btn w-[84px] bg-white text-[40px]" onClick={() => bump(-step)} aria-label="Less">−</button>
+      <button type="button" className="big-btn w-[84px] text-[40px]" onClick={() => bump(-step)} aria-label="Less">−</button>
       <div className="flex items-center gap-3">
         <input
           className="toon-input w-[220px] text-center"
@@ -54,7 +54,7 @@ function NumberBox({ value, onChange, unitWord, step, placeholder }: { value: nu
         />
         <span className="font-display text-[34px] font-bold">{unitWord}</span>
       </div>
-      <button type="button" className="big-btn w-[84px] bg-white text-[40px]" onClick={() => bump(step)} aria-label="More">+</button>
+      <button type="button" className="big-btn w-[84px] text-[40px]" onClick={() => bump(step)} aria-label="More">+</button>
     </div>
   );
 }
@@ -169,9 +169,9 @@ export default function NewTreat() {
             </NonnaSays>
           )}
           <div className="flex flex-wrap justify-center gap-4">
-            {needOrders.length > 0 && <Link href="/kiosk/orders" className="big-btn bg-terracotta">📦 Check the order</Link>}
-            <Link href="/kiosk/menu" className="big-btn bg-sage">🍰 See my menu</Link>
-            <Link href="/kiosk" className="big-btn bg-white">🏠 Home</Link>
+            {needOrders.length > 0 && <Link href="/kiosk/orders" className="big-btn btn-primary">📦 Check the order</Link>}
+            <Link href="/kiosk/menu" className="big-btn btn-go">🍰 See my menu</Link>
+            <Link href="/kiosk" className="big-btn">🏠 Home</Link>
           </div>
         </div>
       </GrannyPage>
@@ -183,7 +183,7 @@ export default function NewTreat() {
       {/* where am I? five big dots */}
       <ol className="flex items-center gap-3" aria-label={`Step ${stepNumber + 1} of ${MAIN.length}`}>
         {MAIN.map((s, i) => (
-          <li key={s} className={`h-6 rounded-full border-[3px] border-cocoa transition-all ${i < stepNumber ? "w-6 bg-sage" : i === stepNumber ? "w-14 bg-terracotta" : "w-6 bg-white"}`} />
+          <li key={s} className={`h-6 rounded-full border-[1.5px] border-linen transition-all ${i < stepNumber ? "w-6 bg-sage" : i === stepNumber ? "w-14 bg-terracotta" : "w-6 bg-white"}`} />
         ))}
         <span className="ml-2 text-[22px] font-bold">Step {stepNumber + 1} of {MAIN.length}</span>
       </ol>
@@ -218,19 +218,19 @@ export default function NewTreat() {
             {lines.length === 0 && <p className="text-[24px] text-cocoa-soft">Nothing yet. Add the first ingredient!</p>}
             <ul className="flex flex-col gap-3">
               {lines.map((l) => (
-                <li key={l.key} className="flex items-center gap-4 rounded-3xl border-4 border-cocoa bg-butter px-5 py-3">
+                <li key={l.key} className="flex items-center gap-4 rounded-3xl border-[1.5px] border-linen bg-butter px-5 py-3">
                   <span aria-hidden className="text-5xl">{ingredientEmoji(l.name)}</span>
                   <span className="flex-1 text-[28px] font-bold">
                     {amount(l.qtyPerUnit, l.unit)} {l.unit === "pcs" ? "×" : "of"} {l.name.toLowerCase()}
                     {l.newIngredient && <span className="ml-2 rounded-full bg-sage px-3 py-0.5 text-[18px]">new!</span>}
                   </span>
-                  <button type="button" className="big-btn min-h-[56px] bg-white text-[20px]" onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
+                  <button type="button" className="big-btn min-h-[56px] text-[20px]" onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
                     Remove
                   </button>
                 </li>
               ))}
             </ul>
-            <button type="button" className="big-btn self-start bg-sage" onClick={startIngredient}>
+            <button type="button" className="big-btn self-start btn-go" onClick={startIngredient}>
               <span aria-hidden>➕</span> {lines.length ? "Add another ingredient" : "Add an ingredient"}
             </button>
           </>
@@ -345,7 +345,7 @@ export default function NewTreat() {
         {step === "check" && (
           <>
             <Question>Does this look right?</Question>
-            <div className="flex items-center gap-5 rounded-3xl border-4 border-cocoa bg-butter p-6">
+            <div className="flex items-center gap-5 rounded-3xl border-[1.5px] border-linen bg-butter p-6">
               <span className="text-[100px] leading-none">{emoji}</span>
               <div>
                 <div className="font-display text-[44px] font-bold leading-tight">{name.trim()}</div>
@@ -358,7 +358,7 @@ export default function NewTreat() {
               ))}
             </ul>
             {error && <p className="text-[24px] font-bold text-terracotta-deep">😳 {error}</p>}
-            <button type="button" className="big-btn self-center bg-sage px-10 text-[34px]" disabled={saving} onClick={save}>
+            <button type="button" className="big-btn self-center btn-go px-10 text-[34px]" disabled={saving} onClick={save}>
               {saving ? "Saving…" : "Put it on the menu! 🎉"}
             </button>
           </>
@@ -367,9 +367,9 @@ export default function NewTreat() {
 
       {nav && (
         <div className="flex justify-between gap-4">
-          <button type="button" className="big-btn bg-white" onClick={nav.back}>⬅ Back</button>
+          <button type="button" className="big-btn" onClick={nav.back}>⬅ Back</button>
           {nav.next && (
-            <button type="button" className="big-btn bg-terracotta" disabled={!nav.ok} onClick={nav.next}>
+            <button type="button" className="big-btn btn-primary" disabled={!nav.ok} onClick={nav.next}>
               {step === "amount" ? "Add it ✔" : "Next ➡"}
             </button>
           )}

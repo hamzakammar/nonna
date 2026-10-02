@@ -20,11 +20,11 @@ function Task({ t, onTick, busy }: { t: PrepTask; onTick: (t: PrepTask, done: bo
         <div className="text-[20px] font-semibold text-cocoa-soft">{t.note}</div>
       </div>
       {done ? (
-        <button className="big-btn min-h-[60px] bg-white text-[22px]" disabled={busy} onClick={() => onTick(t, false)}>
+        <button className="big-btn min-h-[60px] text-[22px]" disabled={busy} onClick={() => onTick(t, false)}>
           ↩️ Not done yet
         </button>
       ) : (
-        <button className="big-btn bg-sage" disabled={busy} onClick={() => onTick(t, true)}>
+        <button className="big-btn btn-go" disabled={busy} onClick={() => onTick(t, true)}>
           <span aria-hidden>✅</span> Done!
         </button>
       )}
@@ -65,9 +65,9 @@ function AddOrder({ onDone }: { onDone: (msg: string) => void }) {
         <>
           <h2 className="text-[38px] font-bold">How many {pick.name}?</h2>
           <div className="flex flex-wrap items-center gap-4">
-            <button type="button" className="big-btn w-[84px] bg-white text-[40px]" aria-label="Fewer" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
+            <button type="button" className="big-btn w-[84px] text-[40px]" aria-label="Fewer" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
             <span className="font-display w-[120px] text-center text-[60px] font-bold">{qty}</span>
-            <button type="button" className="big-btn w-[84px] bg-white text-[40px]" aria-label="More" onClick={() => setQty((q) => q + 1)}>+</button>
+            <button type="button" className="big-btn w-[84px] text-[40px]" aria-label="More" onClick={() => setQty((q) => q + 1)}>+</button>
             {[6, 12, 24, 50].map((n) => (
               <button key={n} type="button" className="tile min-w-[90px] text-[26px]" onClick={() => setQty(n)}>{n}</button>
             ))}
@@ -76,7 +76,7 @@ function AddOrder({ onDone }: { onDone: (msg: string) => void }) {
             Who is it for? <span className="text-[20px] font-semibold text-cocoa-soft">(you can skip this)</span>
             <input className="toon-input text-[32px]" placeholder="The university" value={who} onChange={(e) => setWho(e.target.value)} />
           </label>
-          <button type="button" className="big-btn self-start bg-sage" disabled={busy} onClick={save}>
+          <button type="button" className="big-btn self-start btn-go" disabled={busy} onClick={save}>
             <span aria-hidden>📝</span> Add it to my list
           </button>
         </>
@@ -125,7 +125,7 @@ export default function Bake() {
           {flash?.text ?? (todo.length === 0 ? "Nothing left to bake today. Put your feet up!" : `${todo.length} ${todo.length === 1 ? "thing" : "things"} to bake today.`)}
         </NonnaSays>
         {!adding && (
-          <button className="big-btn bg-white" onClick={() => setAdding(true)}>
+          <button className="big-btn" onClick={() => setAdding(true)}>
             <span aria-hidden>📞</span> Someone ordered
           </button>
         )}

@@ -1,23 +1,59 @@
 @import "tailwindcss";
 
-/* Grandma's bakery: butter yellow, cream, espresso brown, terracotta, sage. Always light, high contrast. */
+/* "Fall classic" (from the Claude Design pass in design/): cream paper, rust gingham, Young Serif over Nunito. */
 :root {
-  --butter: #fff3b0;
-  --butter-deep: #ffe066;
-  --cream: #fffaf0;
-  --cocoa: #4a2c17;
-  --cocoa-soft: #7a5236;
-  --terracotta: #e07a5f;
-  --terracotta-deep: #c4573b;
-  --sage: #81b29a;
-  --sage-deep: #4f8a6c;
-  --berry: #d94f70;
-  --sky: #9fd3e6;
-  --wood: #c98f5a;
+  /* the palette */
+  --paper: #f8efdd; /* page */
+  --card: #fffbf2;
+  --ink: #3b2416;
+  --ink-soft: #5c3d27;
+  --linen: #d8c2a0; /* card borders */
+  --linen-shadow: #e6d3b3;
+  --taupe: #b89a6f; /* secondary button borders */
+  --rust: #a94f1d;
+  --rust-dark: #7c3812;
+  --olive: #4c5a2c;
+  --olive-dark: #333f1c;
+  --wine: #8a3324;
+  --ochre: #7a5a12;
+  --tint-rust: #f6dcc4;
+  --tint-gold: #f3e3b3;
+  --tint-olive: #dfe6cf;
+  --tint-rose: #efd3cb;
+  --wood: #b98552;
   --wood-dark: #8d5a33;
+
+  /* older token names, mapped onto the palette so every screen follows it */
+  --butter: var(--paper);
+  --butter-deep: var(--tint-gold);
+  --cream: var(--card);
+  --cocoa: var(--ink);
+  --cocoa-soft: var(--ink-soft);
+  --terracotta: var(--tint-rust);
+  --terracotta-deep: var(--rust);
+  --sage: var(--tint-olive);
+  --sage-deep: var(--olive);
+  --berry: var(--wine);
+  --sky: var(--tint-rose);
 }
 
 @theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-linen: var(--linen);
+  --color-taupe: var(--taupe);
+  --color-rust: var(--rust);
+  --color-olive: var(--olive);
+  --color-wine: var(--wine);
+  --color-ochre: var(--ochre);
+  --color-tint-rust: var(--tint-rust);
+  --color-tint-gold: var(--tint-gold);
+  --color-tint-olive: var(--tint-olive);
+  --color-tint-rose: var(--tint-rose);
+  --color-wood: var(--wood);
+  --color-wood-dark: var(--wood-dark);
   --color-butter: var(--butter);
   --color-butter-deep: var(--butter-deep);
   --color-cream: var(--cream);
@@ -29,10 +65,8 @@
   --color-sage-deep: var(--sage-deep);
   --color-berry: var(--berry);
   --color-sky: var(--sky);
-  --color-wood: var(--wood);
-  --color-wood-dark: var(--wood-dark);
   --font-sans: var(--font-nunito);
-  --font-display: var(--font-fredoka);
+  --font-display: var(--font-serif);
 }
 
 html {
@@ -40,97 +74,157 @@ html {
 }
 
 body {
-  background-color: var(--butter);
-  /* polka dots, like a tablecloth */
-  background-image: radial-gradient(rgba(255, 255, 255, 0.55) 3px, transparent 3.5px);
-  background-size: 34px 34px;
-  color: var(--cocoa);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-nunito), ui-rounded, system-ui, sans-serif;
   font-size: 22px;
 }
 
+a { color: var(--ink); text-decoration: none; }
+
+/* Young Serif has one weight; never let a bold utility fake it. */
 h1, h2, h3, .font-display {
-  font-family: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+}
+
+/* The red-and-cream gingham band across the top of every screen. */
+.gingham {
+  height: 20px;
+  flex-shrink: 0;
+  background-color: var(--rust);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255, 250, 240, 0.38) 0px, rgba(255, 250, 240, 0.38) 10px, transparent 10px, transparent 20px),
+    repeating-linear-gradient(0deg, rgba(59, 36, 22, 0.28) 0px, rgba(59, 36, 22, 0.28) 10px, transparent 10px, transparent 20px);
 }
 
 /* Components live in a layer so Tailwind utilities (bg-*, text-*) can override them. */
 @layer components {
-  /* A chunky cartoon card: thick outline + offset shadow */
+  /* A card: cream, thin linen border, a soft lip underneath. */
   .toon {
-    background: var(--cream);
-    border: 4px solid var(--cocoa);
-    border-radius: 28px;
-    box-shadow: 6px 6px 0 var(--cocoa);
+    background: var(--card);
+    border: 1.5px solid var(--linen);
+    border-radius: 22px;
+    box-shadow: 0 3px 0 var(--linen-shadow);
   }
 
-  /* Big pressable button. Colour comes from the bg-* class next to it. */
+  /* A big pill button. Plain = the quiet one ("No thanks"); add btn-primary or btn-go for the main action. */
   .big-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.6em;
-    min-height: 76px;
-    padding: 0.5em 1.2em;
-    border: 4px solid var(--cocoa);
+    gap: 12px;
+    min-height: 72px;
+    padding: 0 28px;
+    box-sizing: border-box;
+    background: var(--card);
+    border: 1.5px solid var(--taupe);
     border-radius: 999px;
-    box-shadow: 0 6px 0 var(--cocoa);
-    font-family: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--cocoa);
+    box-shadow: 0 3px 0 var(--linen-shadow);
+    font-family: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ink);
     cursor: pointer;
     transition: transform 80ms ease, box-shadow 80ms ease;
     user-select: none;
   }
-  .big-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--cocoa); }
-  .big-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--cocoa); }
-  .big-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: 0 6px 0 var(--cocoa); }
-  .big-btn:focus-visible, .toon-input:focus-visible, .tile:focus-visible { outline: 5px solid var(--sky); outline-offset: 3px; }
+  .big-btn:hover { transform: translateY(-1px); }
+  .big-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--linen-shadow); }
+  .big-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .btn-primary, .btn-go {
+    border: 0;
+    color: var(--card);
+    font-family: var(--font-serif), Georgia, serif;
+    font-weight: 400;
+    font-size: 30px;
+  }
+  .btn-primary { background: var(--rust); box-shadow: 0 4px 0 var(--rust-dark); }
+  .btn-go { background: var(--olive); box-shadow: 0 4px 0 var(--olive-dark); }
+  .btn-primary:active { box-shadow: 0 0 0 var(--rust-dark); }
+  .btn-go:active { box-shadow: 0 0 0 var(--olive-dark); }
+
+  .big-btn:focus-visible, .toon-input:focus-visible, .tile:focus-visible, .door:focus-visible {
+    outline: 4px solid var(--rust);
+    outline-offset: 3px;
+  }
 
   .toon-input {
     width: 100%;
-    min-height: 84px;
+    min-height: 80px;
     padding: 0 0.6em;
-    border: 4px solid var(--cocoa);
-    border-radius: 24px;
-    background: white;
-    font-size: 40px;
+    box-sizing: border-box;
+    border: 1.5px solid var(--taupe);
+    border-radius: 18px;
+    background: #fffdf8;
+    font-size: 38px;
     font-weight: 700;
-    color: var(--cocoa);
+    color: var(--ink);
   }
-  .toon-input::placeholder { color: #c9b9a6; font-weight: 600; }
+  .toon-input::placeholder { color: #c4ad8c; font-weight: 600; }
 
-  /* A tappable choice tile (emoji pickers, ingredient pickers) */
+  /* A tappable choice tile (pickers). */
   .tile {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.2em;
+    gap: 0.25em;
     padding: 0.6em;
-    background: white;
-    border: 4px solid var(--cocoa);
-    border-radius: 24px;
-    box-shadow: 0 5px 0 var(--cocoa);
-    font-weight: 700;
+    background: var(--card);
+    border: 1.5px solid var(--linen);
+    border-radius: 18px;
+    box-shadow: 0 3px 0 var(--linen-shadow);
+    font-weight: 800;
     cursor: pointer;
     transition: transform 80ms ease;
   }
-  .tile:hover { transform: translateY(-3px) rotate(-1deg); }
-  .tile[aria-pressed="true"] { background: var(--butter-deep); }
+  .tile:hover { transform: translateY(-2px); }
+  .tile[aria-pressed="true"] { background: var(--tint-rust); border-color: var(--rust); }
+
+  /* A home-screen door: card + round tinted icon + title + chevron. */
+  .door {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 28px;
+    background: var(--card);
+    border: 1.5px solid var(--linen);
+    border-radius: 22px;
+    box-shadow: 0 3px 0 var(--linen-shadow);
+    transition: transform 120ms ease;
+  }
+  .door:hover { transform: translateY(-2px); }
+
+  /* Round tinted badge holding a line icon. */
+  .icon-dot {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  /* Small rounded label ("Sample numbers", "Running low"). */
+  .tag {
+    display: inline-block;
+    padding: 3px 14px;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 800;
+  }
 }
 
-@keyframes wiggle { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
-@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-@keyframes pop-in { 0% { transform: scale(0.6); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes pop-in { 0% { transform: scale(0.96); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes fall {
   0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
   100% { transform: translateY(105vh) rotate(540deg); opacity: 0.9; }
 }
-.wiggle { animation: wiggle 2.4s ease-in-out infinite; }
-.bob { animation: bob 3s ease-in-out infinite; }
-.pop-in { animation: pop-in 320ms ease-out both; }
+.pop-in { animation: pop-in 220ms ease-out both; }
+/* Kept as no-ops so older markup still compiles; the fall-classic look doesn't wiggle. */
+.wiggle, .bob { animation: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .wiggle, .bob, .pop-in { animation: none; }
+  .pop-in { animation: none; }
 }
