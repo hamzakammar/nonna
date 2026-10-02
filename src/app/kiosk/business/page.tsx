@@ -1,10 +1,11 @@
 "use client";
-// Lane 4. "How's the shop?": best sellers, busy times, and the Gentle Truth. All numbers come from Lane 3.
+// Lane 4. "How's the shop?": best sellers, busy times, the Gentle Truth (Lane 3) and prices nearby (Lane 1).
 import type { BusynessBucket, GentleTruth, ProductPerformance, RushStatus } from "@/lib/types";
 import type { MenuItem } from "@/lib/catalog/types";
 import { DAY_NAMES, hourLabel, money } from "@/components/format";
 import { GrannyPage, Loading, StillCooking } from "@/components/GrannyPage";
 import { NonnaFace } from "@/components/Nonna";
+import { PricesNearby } from "@/components/PricesNearby";
 import { SAMPLE_BUSYNESS, SAMPLE_PRODUCTS, SAMPLE_RUSH, SAMPLE_TRUTHS } from "@/components/sampleData";
 import { useApi, type ApiState } from "@/components/useApi";
 
@@ -179,6 +180,7 @@ export default function Business() {
           }
         </Gate>
       </Panel>
+      <PricesNearby emojiOf={emojiOf} onChanged={menu.reload} />
     </GrannyPage>
   );
 }

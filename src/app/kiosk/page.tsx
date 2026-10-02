@@ -1,8 +1,9 @@
 "use client";
-// Lane 4. Grandma's home screen: Nonna says hello, five big doors. Spec: docs/roles/lane-4-shop-window.md § Kiosk
+// Lane 4. Grandma's home screen: Nonna (voice + yes/no), today's baking, four big doors.
+// Spec: docs/roles/lane-4-shop-window.md § Kiosk. Voice comes from Lane 2's useNonnaEars + /api/voice.
 import Link from "next/link";
-import type { Reorder } from "@/lib/types";
-import { NonnaSays } from "@/components/Nonna";
+import type { PrepTask, Reorder } from "@/lib/types";
+import { NonnaVoice } from "@/components/NonnaVoice";
 import { useApi } from "@/components/useApi";
 
 function greeting(iso?: string) {
@@ -24,17 +25,29 @@ const DOORS = [
 export default function Kiosk() {
   const clock = useApi<{ now: string }>("/api/sim");
   const reorders = useApi<Reorder[]>("/api/reorders", { pollMs: 5000 });
+  const next = useApi<PrepTask | null>("/api/sales/todo?next=1", { pollMs: 5000 });
   const waiting = reorders.status === "ok" ? reorders.data.filter((r) => r.status === "proposed").length : 0;
   const now = clock.status === "ok" ? clock.data.now : undefined;
+  const nextTask = next.status === "ok" ? next.data : null;
+
+  const idle = `${greeting(now)}, tesoro! ${
+    waiting === 0 ? "Everything is taken care of. 💛" : `${waiting} ${waiting === 1 ? "order needs" : "orders need"} your yes.`
+  }`;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-5 py-8 sm:px-8">
-      <NonnaSays size={150} mood={waiting ? "happy" : "proud"}>
-        {greeting(now)}, tesoro!{" "}
-        {waiting === 0
-          ? "Everything is taken care of. 💛"
-          : `${waiting} ${waiting === 1 ? "order needs" : "orders need"} your yes.`}
-      </NonnaSays>
+      <NonnaVoice idle={idle} onChange={reorders.reload} />
+
+      <Link href="/kiosk/bake" className="toon flex items-center gap-5 bg-white p-6 transition-transform hover:-translate-y-1">
+        <span aria-hidden className="text-[84px] leading-none">{nextTask?.emoji ?? "👩‍🍳"}</span>
+        <span className="flex-1">
+          <span className="font-display block text-[34px] font-bold leading-tight">Today&apos;s baking</span>
+          <span className="block text-[24px] font-bold">
+            {next.status !== "ok" ? "Your list for today" : nextTask ? `Next: ${nextTask.qty} × ${nextTask.name}` : "All done for today! 🎉"}
+          </span>
+        </span>
+        <span aria-hidden className="font-display text-[40px] font-bold">➜</span>
+      </Link>
 
       <div className="grid gap-6 sm:grid-cols-2">
         {DOORS.map((d) => (
