@@ -18,6 +18,7 @@ const DOORS = [
   { href: "/kiosk/pantry", emoji: "🧺", title: "My pantry", note: "What's on the shelves", color: "bg-sky" },
   { href: "/kiosk/menu", emoji: "🍰", title: "My menu", note: "See or remove treats", color: "bg-sage" },
   { href: "/kiosk/business", emoji: "📊", title: "How's the shop?", note: "Best sellers and busy times", color: "bg-butter-deep" },
+  { href: "/kiosk/notebook", emoji: "📒", title: "My notebook", note: "Where the money went", color: "bg-butter" },
 ];
 
 export default function Kiosk() {
