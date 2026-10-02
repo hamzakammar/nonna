@@ -19,7 +19,7 @@ export function notify(input: NotifyInput): NonnaNotification {
   const notification: NonnaNotification = {
     id: id("note"), at: nowIso(), kind: input.kind, severity: input.severity,
     text: input.text, spoken: template(input.kind, input.text),
-    awaitingAnswer: input.awaitingAnswer, channels: input.channels ?? ["speaker", "dashboard"], deliveredAt: nowIso(),
+    awaitingAnswer: input.awaitingAnswer, channels: input.channels ?? ["dashboard"], deliveredAt: nowIso(),
   };
   if (notification.awaitingAnswer?.onNo?.type === "snooze" && !notification.awaitingAnswer.onNo.notificationId)
     notification.awaitingAnswer.onNo.notificationId = notification.id;

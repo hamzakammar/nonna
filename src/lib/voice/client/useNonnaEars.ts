@@ -24,13 +24,12 @@ export function useNonnaEars(opts: { enabled: boolean; expectingAnswer: boolean;
   const [lastHeard, setLastHeard] = useState("");
   const recognition = useRef<Recognition | null>(null);
   const optsRef = useRef(opts);
-  const speaking = useRef(false);
   const waitingForCommand = useRef(false);
   const once = useRef(false);
   useEffect(() => { optsRef.current = opts; }, [opts]);
 
   const start = useCallback(() => {
-    if (!recognition.current || speaking.current || (!optsRef.current.enabled && !once.current)) return;
+    if (!recognition.current || (!optsRef.current.enabled && !once.current)) return;
     try { recognition.current.start(); setListening(true); } catch { /* already running */ }
   }, []);
 
@@ -65,19 +64,13 @@ export function useNonnaEars(opts: { enabled: boolean; expectingAnswer: boolean;
     };
     ear.onend = () => {
       setListening(false);
-      if (optsRef.current.enabled && !speaking.current) window.setTimeout(start, 200);
+      if (optsRef.current.enabled) window.setTimeout(start, 200);
     };
     ear.onerror = (event) => {
       if (event.error === "not-allowed" || event.error === "service-not-allowed") setListening(false);
     };
-    const onSpeaking = () => { speaking.current = true; ear.abort(); setListening(false); };
-    const onSilent = () => { speaking.current = false; start(); };
-    window.addEventListener("nonna:speaking-start", onSpeaking);
-    window.addEventListener("nonna:speaking-end", onSilent);
     if (optsRef.current.enabled) window.setTimeout(start, 0);
     return () => {
-      window.removeEventListener("nonna:speaking-start", onSpeaking);
-      window.removeEventListener("nonna:speaking-end", onSilent);
       ear.onend = null;
       ear.abort();
       recognition.current = null;

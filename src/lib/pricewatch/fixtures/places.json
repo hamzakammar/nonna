@@ -1,0 +1,29 @@
+{
+  "_comment": "Mock discovery results (stands in for OpenStreetMap / Google Places around the shop). Websites use mock:// URLs, served from these fixture folders and also viewable at /mock/<slug>/ in the app.",
+  "places": [
+    {
+      "externalId": "mock:the-bakery",
+      "name": "The Bakery",
+      "website": "mock://the-bakery/"
+    },
+    {
+      "externalId": "mock:crumb-and-co",
+      "name": "Crumb & Co",
+      "website": "mock://crumb-and-co/"
+    },
+    {
+      "externalId": "mock:loaf-and-ladle",
+      "name": "Loaf & Ladle",
+      "website": "mock://loaf-and-ladle/"
+    },
+    {
+      "externalId": "mock:sugar-shack",
+      "name": "Sugar Shack Patisserie",
+      "website": "mock://sugar-shack/"
+    },
+    {
+      "externalId": "mock:rise-and-shine",
+      "name": "Rise & Shine Bakery"
+    }
+  ]
+}
