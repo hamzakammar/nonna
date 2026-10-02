@@ -15,7 +15,7 @@ npm run db:reset && npm run simulate -- --days 21 --seed 42 && npm run dev
 |---|---|---|
 | 0:00 | **Hook** | "This is Grandma. She runs a bakery, and her inventory system is her memory. We gave her a helper she never has to learn." |
 | 0:20 | **Sales eat stock** | Tap 7 Fall Parfaits on `/pos`. The dashboard shows cream dropping live. |
-| 0:40 | **Nonna speaks** | Kiosk: *"Mamma mia, cream is low… Should I order 4 litres from Gerald for $20?"* Presenter-as-Grandma: **"Yes."** → *"Done, tesoro."* The dashboard shows the reorder placed on Gerald's card. |
+| 0:40 | **Nonna speaks** | Kiosk: *"Mamma mia, cream is low… Should I order 4 litres from Gerald for $28?"* Presenter-as-Grandma: **"Yes."** → *"Done, tesoro."* The dashboard shows the reorder placed on Gerald's card. |
 | 1:10 | **Ask anything** | "Nonna, what's selling best this week?" → real numbers from the analytics. |
 | 1:30 | **The Gentle Truth** | "Nonna, how's the apple pie doing?" → kind, specific, one suggestion. *"So the grandson never has to say it."* |
 | 1:55 | **Rush-aware** | `/demo` → "Fire a rush". Rush meter goes red. Press "+1 day": berries expire, **Nonna stays quiet**. Rush ends → *"Okay, it's calm. Two things while you were busy…"* |

@@ -3,7 +3,7 @@
  *
  * Stock is set up so the demo starts with things already happening:
  *   - heavy cream is just above its reorder point (a couple of parfaits tip it over)
- *   - mixed berries expire tomorrow
+ *   - mixed berries expire in ~20h (already "expiring soon")
  *   - milk expires in ~36h
  * Sales history is NOT seeded here. Lane 3's simulator (`npm run simulate`) adds it.
  */
@@ -28,7 +28,7 @@ const SUPPLIERS = [
 
 // unit_cost_cents = cents per ONE base unit (g / ml / pcs)
 const INGREDIENTS = [
-  { id: "ing_cream", name: "Heavy cream", unit: "ml", reorder_point: 1500, reorder_qty: 4000, unit_cost_cents: 0.5, shelf_life_days: 7, supplier_id: "sup_gerald" },
+  { id: "ing_cream", name: "Heavy cream", unit: "ml", reorder_point: 1500, reorder_qty: 4000, unit_cost_cents: 0.7, /* Gerald raised prices (trade war): $28 per order, over the autopilot cap so Nonna asks */ shelf_life_days: 7, supplier_id: "sup_gerald" },
   { id: "ing_milk", name: "Whole milk", unit: "ml", reorder_point: 3000, reorder_qty: 8000, unit_cost_cents: 0.15, shelf_life_days: 6, supplier_id: "sup_gerald" },
   { id: "ing_yogurt", name: "Greek yogurt", unit: "g", reorder_point: 2000, reorder_qty: 5000, unit_cost_cents: 0.6, shelf_life_days: 10, supplier_id: "sup_gerald" },
   { id: "ing_mascarpone", name: "Mascarpone", unit: "g", reorder_point: 700, reorder_qty: 2000, unit_cost_cents: 1.6, shelf_life_days: 8, supplier_id: "sup_gerald" },
@@ -75,7 +75,7 @@ const LOTS: [string, number, number, number][] = [
   ["ing_mascarpone", 1800, 2, 6],
   ["ing_butter", 5000, 5, 25],
   ["ing_apples", 7000, 3, 11],
-  ["ing_berries", 2200, 3, 1], // expires tomorrow
+  ["ing_berries", 2200, 3, 0.75], // expires in ~20h: "expiring soon" at demo start, dead after "+1 day"
   ["ing_pumpkin", 3000, 1, 6],
   ["ing_flour", 15000, 10, 170],
   ["ing_sugar", 8000, 20, 345],

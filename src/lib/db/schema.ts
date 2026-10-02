@@ -55,7 +55,8 @@ CREATE TABLE IF NOT EXISTS stock_lots (
   ingredient_id  TEXT NOT NULL REFERENCES ingredients(id),
   qty_remaining  REAL NOT NULL,
   received_at    TEXT NOT NULL,
-  expires_at     TEXT NOT NULL
+  expires_at     TEXT NOT NULL,
+  expiring_notified_at  TEXT  -- set when stock.expiring fired, so it fires once per lot
 );
 
 -- written by: pantry. read by: voice, shop window, ledger
@@ -70,7 +71,8 @@ CREATE TABLE IF NOT EXISTS reorders (
   created_at           TEXT NOT NULL,
   placed_at            TEXT,
   received_at          TEXT,
-  ramp_transaction_id  TEXT
+  ramp_transaction_id  TEXT,
+  auto_approved        INTEGER NOT NULL DEFAULT 0  -- placed by the autopilot allowance, no "yes" needed
 );
 
 -- written by: pantry. read by: ledger (waste $), shop window

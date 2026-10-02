@@ -17,8 +17,9 @@
 ## P0: must ship
 - [ ] **Notification pipeline**: `notify()` persists to `notifications`, fills `spoken` via `persona.template()`, and pushes to SSE subscribers. Default channels: speaker + dashboard.
 - [ ] **Event → notification mapping** in `registerNotifyListeners()`:
-  - `reorder.proposed` → `nudge` with `awaitingAnswer: { question: "Should I order 4 litres of cream from Gerald's Dairy for $20?", onYes: approve_reorder, onNo: snooze }`
-  - `stock.expiring` → `nudge` · `stock.expired` → `info` (include waste $) · `reorder.placed` / `received` → `info`
+  - `reorder.proposed` → `nudge` with `awaitingAnswer: { question: "Should I order 4 litres of cream from Gerald's Dairy for $28?", onYes: approve_reorder, onNo: snooze }`
+  - `reorder.placed` with `reorder.autoApproved === true` (Nonna's allowance, routine restock ≤ $25) → `info`, announced **after the fact** with an undo: `awaitingAnswer: { question: "I ordered the usual flour from BulkMart, $15. Want to keep it?", onYes: none, onNo: cancel_reorder }`. Also accept "cancel" without the wake word for a minute or so.
+  - `stock.expiring` → `nudge` · `stock.expired` → `info` (include waste $) · `reorder.placed` (Grandma-approved) / `received` → `info`
   - Out of stock (level `out`) on any ingredient → `urgent`
 - [ ] **Ears** (`useNonnaEars`): continuous recognition, wake word "Nonna" (also match "nona", "nana", "nonnah"; STT is sloppy), auto-restart on `end`, no wake word needed while `expectingAnswer`. **Pause while speaking** so she doesn't hear herself.
 - [ ] **`handleUtterance` fast path**: a pending question plus `quickYesNo()` executes `onYes`/`onNo` via Lane 1 and replies with a template. **Works with zero API keys.**
