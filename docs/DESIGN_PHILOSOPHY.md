@@ -40,8 +40,11 @@ Everything Grandma does with Nonna.exe takes **one spoken sentence or a "yes"**.
 | `nudge` | "Cream is low, should I order?" | No, queued until it's quiet |
 | `info` | "Gerald's delivery was received." | No, queued, can be batched |
 
-### 5. Nothing happens without Grandma (but almost nothing needs her)
-- Spending money (reorders) **always** needs a "yes", either spoken or tapped. Nonna proposes, Grandma approves.
+### 5. Nonna's allowance: small stuff on autopilot, big stuff asks, and she always tells you
+- **Routine restocks are placed without asking.** Routine means: triggered by low stock or expiry, the usual quantity from the usual supplier, **≤ $25**, and within a **$100/week autopilot budget**. Nonna tells Grandma *afterwards*, with an easy undo: *"I ordered the usual flour from BulkMart, $15. Say 'cancel' if you don't want it."*
+- **Anything unusual asks first**: over $25, over the weekly budget, a manual or odd request, a declined card. *"Should I order 4 litres of cream from Gerald for $28?"*
+- **Three limits stack**, so there's no spending spree: per-order cap → weekly autopilot budget → each supplier card's own weekly limit (the hard ceiling).
+- Every autopilot order is visible on the dashboard and **cancellable until it arrives** (refunded on the card).
 - Everything else (tracking, consuming stock, logging waste from expiry, analytics) happens **silently and automatically**.
 - No double orders, ever: one open reorder per ingredient.
 

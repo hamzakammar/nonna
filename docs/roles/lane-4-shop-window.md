@@ -29,6 +29,8 @@
 - [ ] Dashboard analytics: product performance table with trend arrows + verdict badges, **busyness heatmap** (7×11 grid, warm colors), "Bake tomorrow" prep list, waste $ card, **Gentle Truth cards** with Nonna's quote.
 - [ ] `/demo` story buttons: **"Jump to Saturday 11:00"**, **"+1 day (watch the berries die)"**, **"Reset world"** (needs a reset endpoint: coordinate with Lane 1 to re-seed).
 - [ ] Mock Ramp panel: supplier cards with limit bars + the latest transactions. It's subtle, one panel.
+- [ ] Inventory table: **days of cover** column (`daysOfCover`, `runsOutAt`) once the simulator has run. Reorder rows show `note` and an "autopilot" badge.
+- [ ] `/demo` **"Trade war 💥"** button: `POST /api/suppliers/price {supplierId:"sup_gerald", ingredientId:"ing_cream", unitCostCents:0.95}`. Show the returned `PriceChange` (margin before → after, $/week) as a big card on the dashboard. `GET /api/suppliers` for a supplier comparison table (local badge, current pick highlighted).
 - [ ] **Own `docs/DEMO.md`**: rehearse it, time it, and keep a backup screen recording.
 
 ## P2: stretch
