@@ -9,6 +9,7 @@
  */
 import { db, tx } from "./index";
 import { now, DAY, HOUR } from "../clock";
+import { refreshAllSourcing } from "../inventory/sourcing";
 
 type Row = Record<string, string | number | null>;
 
@@ -24,9 +25,12 @@ const SUPPLIERS = [
   { id: "sup_dave", name: "Dave's Pumpkin Patch", contact: "(519) 555-0177", lead_time_hours: 24, is_local: 1 },
   { id: "sup_bulk", name: "BulkMart Wholesale", contact: "orders@bulkmart.example", lead_time_hours: 48, is_local: 0 },
   { id: "sup_bean", name: "Bean There Roasters", contact: "(519) 555-0110", lead_time_hours: 24, is_local: 1 },
+  { id: "sup_maple", name: "Maple Hill Creamery", contact: "(519) 555-0163", lead_time_hours: 24, is_local: 1 },
 ];
 
-// unit_cost_cents = cents per ONE base unit (g / ml / pcs)
+// unit_cost_cents = cents per ONE base unit (g / ml / pcs).
+// supplier_id/unit_cost_cents here = that supplier's offer. ALT_OFFERS add competitors, and after
+// seeding, sourcing picks the current supplier per ingredient (cheapest, or local within 10%).
 const INGREDIENTS = [
   { id: "ing_cream", name: "Heavy cream", unit: "ml", reorder_point: 1500, reorder_qty: 4000, unit_cost_cents: 0.7, /* Gerald raised prices (trade war): $28 per order, over the autopilot cap so Nonna asks */ shelf_life_days: 7, supplier_id: "sup_gerald" },
   { id: "ing_milk", name: "Whole milk", unit: "ml", reorder_point: 3000, reorder_qty: 8000, unit_cost_cents: 0.15, shelf_life_days: 6, supplier_id: "sup_gerald" },
@@ -42,6 +46,18 @@ const INGREDIENTS = [
   { id: "ing_eggs", name: "Eggs", unit: "pcs", reorder_point: 24, reorder_qty: 90, unit_cost_cents: 40, shelf_life_days: 21, supplier_id: "sup_bulk" },
   { id: "ing_cups", name: "Parfait cups", unit: "pcs", reorder_point: 40, reorder_qty: 200, unit_cost_cents: 15, shelf_life_days: 3650, supplier_id: "sup_bulk" },
   { id: "ing_coffee", name: "Espresso beans", unit: "g", reorder_point: 800, reorder_qty: 2500, unit_cost_cents: 3, shelf_life_days: 30, supplier_id: "sup_bean" },
+];
+
+// [ingredient, supplier, unit_cost_cents]: competing offers. The demo stories they set up:
+//  - milk, apples, eggs: a local supplier is ≤10% pricier than the cheapest → local wins
+//  - butter: BulkMart is just cheaper than Gerald → BulkMart wins
+//  - cream: Maple Hill is 21% pricier than Gerald → Gerald wins… until the trade war (Gerald → 0.95¢/ml)
+const ALT_OFFERS: [string, string, number][] = [
+  ["ing_cream", "sup_maple", 0.85],
+  ["ing_milk", "sup_maple", 0.16],
+  ["ing_butter", "sup_bulk", 1.0],
+  ["ing_apples", "sup_bulk", 0.38],
+  ["ing_eggs", "sup_rosa", 42],
 ];
 
 const PRODUCTS = [
@@ -91,6 +107,7 @@ const CARDS = [
   { id: "card_dave", display_name: "Dave's Pumpkin Patch card", last_four: "9032", spend_limit_cents: 20000, supplier: "sup_dave" },
   { id: "card_bulk", display_name: "BulkMart card", last_four: "5566", spend_limit_cents: 80000, supplier: "sup_bulk" },
   { id: "card_bean", display_name: "Bean There card", last_four: "7703", spend_limit_cents: 25000, supplier: "sup_bean" },
+  { id: "card_maple", display_name: "Maple Hill Creamery card", last_four: "3318", spend_limit_cents: 40000, supplier: "sup_maple" },
 ];
 
 export function seed() {
@@ -104,7 +121,13 @@ export function seed() {
     for (const s of SUPPLIERS) {
       insert("suppliers", { ...s, ramp_card_id: CARDS.find((c) => c.supplier === s.id)?.id ?? null });
     }
-    for (const i of INGREDIENTS) insert("ingredients", i);
+    for (const i of INGREDIENTS) {
+      insert("ingredients", i);
+      insert("supplier_offers", { ingredient_id: i.id, supplier_id: i.supplier_id, unit_cost_cents: i.unit_cost_cents });
+    }
+    for (const [ingredient_id, supplier_id, unit_cost_cents] of ALT_OFFERS) {
+      insert("supplier_offers", { ingredient_id, supplier_id, unit_cost_cents });
+    }
     for (const p of PRODUCTS) insert("products", { ...p, active: 1 });
     for (const [product_id, ingredient_id, qty_per_unit] of RECIPES) {
       insert("recipe_items", { product_id, ingredient_id, qty_per_unit });
@@ -119,4 +142,5 @@ export function seed() {
       });
     });
   });
+  refreshAllSourcing();
 }

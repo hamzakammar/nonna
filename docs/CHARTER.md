@@ -68,7 +68,8 @@ Every team in this track will build "inventory + low-stock alert". Here's what s
 4. **The Gentle Truth.** Product performance delivered kindly with one concrete fix. It solves the human problem, not just the data problem.
 5. **Bake-tomorrow forecast + waste in dollars.** Moves from "tracking" to "deciding": *make 14, not 20*, and *you threw away $18 of berries this week*.
 6. **Honest AI.** The LLM never invents a number. Code computes, Nonna talks. Good to say out loud to technical judges.
-7. **Spend controls built in.** Every supplier is paid from its own (mock) Ramp-style card with a weekly limit, so expenses are tracked automatically. Keep it to one sentence in the pitch, but it's there.
+7. **Trade-war proof, local first.** When a supplier hikes prices, Nonna shows the dollars-per-week hit, switches to the best offer, and prefers local growers when they're within 10%. That covers two more wishlist items ("Trade war", "Local legend").
+8. **Spend controls built in.** Every supplier is paid from its own (mock) Ramp-style card with a weekly limit, so expenses are tracked automatically. Keep it to one sentence in the pitch, but it's there.
 
 ## 7. Team & roles
 

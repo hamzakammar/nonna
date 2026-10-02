@@ -41,6 +41,16 @@ CREATE TABLE IF NOT EXISTS products (
   active       INTEGER NOT NULL DEFAULT 1
 );
 
+-- every supplier's price per ingredient. ingredients.supplier_id/unit_cost_cents hold the
+-- CURRENT pick (cheapest, or local within 10%), kept in sync by inventory/sourcing.ts.
+-- written by: pantry. read by: shop window
+CREATE TABLE IF NOT EXISTS supplier_offers (
+  ingredient_id    TEXT NOT NULL REFERENCES ingredients(id),
+  supplier_id      TEXT NOT NULL REFERENCES suppliers(id),
+  unit_cost_cents  REAL NOT NULL,
+  PRIMARY KEY (ingredient_id, supplier_id)
+);
+
 -- read by: pantry (consumption), ledger (margins)
 CREATE TABLE IF NOT EXISTS recipe_items (
   product_id     TEXT NOT NULL REFERENCES products(id),
@@ -72,6 +82,7 @@ CREATE TABLE IF NOT EXISTS reorders (
   placed_at            TEXT,
   received_at          TEXT,
   ramp_transaction_id  TEXT,
+  note                 TEXT,
   auto_approved        INTEGER NOT NULL DEFAULT 0  -- placed by the autopilot allowance, no "yes" needed
 );
 

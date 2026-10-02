@@ -32,14 +32,18 @@ You're the **critical path**: Lane 2's best demo moment ("Should I order cream?"
 - [x] **`order_now` support** (for voice "Nonna, order more flour"): `proposeReorder` + immediate `approveReorder`.
 
 ## P2: stretch
-- [ ] Smarter reorder qty: use Lane 3's `prepForecast()` to order enough for the next N days instead of the fixed `reorderQty`.
-- [ ] Prefer local suppliers when price is within 10% (needs a second supplier per ingredient in the seed).
-- [ ] Card over limit → Nonna says "Gerald's card is maxed for the week, should I raise it?"
+- [x] Smarter reorder qty: usage-based (own forecast from sales history in `inventory/forecast.ts`, no dependency on Lane 3): enough for delivery time + 5 days, never more than will be used before it spoils. Plus **early reorders** (reason `forecast`) when stock will run out before a delivery could arrive.
+- [x] Prefer local suppliers when price is within 10% (`supplier_offers` table, `inventory/sourcing.ts`). Plus the **trade war**: `setOfferPrice()` re-picks the supplier and reports the margin and weekly $ impact per product.
+- [x] Card over limit → `card.declined` event with a suggested limit → `raiseCardLimit(cardId, newLimit, thenApproveReorderId)` (max 2× or +$100 in one go).
 
 ## Status (for other lanes)
 P0 + P1 are done. Prove it with `npm run check:pantry` (runs against a throwaway DB).
 - **Voice (Lane 2):** `VoiceAction` → `approve_reorder` = `approveReorder`, `cancel_reorder` = `cancelReorder`, `order_now` = `orderNow`, `mark_received` = `receiveReorder`, `log_waste` = `logWaste`. `approveReorder` throws `CardDeclinedError` (`reason: "suspended" | "over_limit"`) and leaves the reorder `proposed`.
 - **Nonna's allowance** (`src/lib/inventory/autopilot.ts`): a routine reorder (low_stock/expired, normal qty + supplier, ≤ $25, within $100/week autopilot budget) is placed immediately. It emits `reorder.placed` with `autoApproved: true` and **no** `reorder.proposed`. Everything else emits `reorder.proposed`. `autopilotStatus()` and `GET /api/ramp` → `autopilot` show the budget. Env: `AUTOPILOT_MAX_ORDER_CENTS`, `AUTOPILOT_WEEKLY_BUDGET_CENTS`.
+- **Sourcing:** each ingredient can have several `supplier_offers`. The pick (cheapest, or local if ≤10% pricier) is written to `ingredients.supplier_id/unit_cost_cents`, so margins stay correct without knowing about offers. Seed: milk → Maple Hill, apples/eggs → Rosa (local wins), butter → BulkMart, cream → Gerald. Reorders carry a `note` explaining supplier + qty.
+- **Trade war:** `POST /api/suppliers/price {supplierId:"sup_gerald", ingredientId:"ing_cream", unitCostCents:0.95}` → Gerald +36%, we switch to Maple Hill (local), returns a `PriceChange` with per-product margins and `weeklyImpactCents`. Also emits `price.changed`.
+- **Forecast:** with sales history, `listInventory()` adds `dailyUsage`, `daysOfCover`, `runsOutAt`. Reorders are sized to usage. `tick()` proposes `forecast` reorders (always asks, and won't re-ask for 24h after a "no").
+- **Maxed card:** approving over a card's weekly limit emits `card.declined` with `suggestedLimitCents`. Grandma says yes → `raise_card_limit` voice action → `raiseCardLimit()` / `POST /api/ramp/limit`.
 - With the seed, **cream ($28) asks** (Gerald raised prices; this is the demo's yes/no moment). Flour, sugar, milk, pumpkin and apples restock on autopilot.
 - **`stock.low`** fires once per crossing of the reorder point, and again when stock hits 0. If both happen in one sale, it fires **once** with `totalQty: 0`. Treat `totalQty === 0` as "out", which means `urgent`.
 - **Ledger (Lane 3):** waste is in `waste_events` (or `listWaste(sinceIso)`).

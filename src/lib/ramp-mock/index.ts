@@ -25,6 +25,7 @@ export interface PaymentsProvider {
   refund(transactionId: string, memo?: string): RampTransaction;
   listTransactions(filter?: { cardId?: string; sinceIso?: string }): RampTransaction[];
   setCardState(cardId: string, state: RampCard["state"]): RampCard;
+  setSpendLimit(cardId: string, spendLimitCents: number): RampCard;
 }
 
 export class CardDeclinedError extends Error {
@@ -117,6 +118,11 @@ export const payments: PaymentsProvider = {
 
   setCardState(cardId, state) {
     db().prepare("UPDATE ramp_cards SET state = ? WHERE id = ?").run(state, cardId);
+    return payments.getCard(cardId);
+  },
+
+  setSpendLimit(cardId, spendLimitCents) {
+    db().prepare("UPDATE ramp_cards SET spend_limit_cents = ? WHERE id = ?").run(spendLimitCents, cardId);
     return payments.getCard(cardId);
   },
 };

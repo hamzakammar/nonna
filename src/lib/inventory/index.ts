@@ -11,6 +11,8 @@ import { db, id, tx } from "@/lib/db";
 import { now, nowIso, DAY, HOUR } from "@/lib/clock";
 import { payments, CardDeclinedError } from "@/lib/ramp-mock";
 import { isRoutine } from "./autopilot";
+import { coverFor, dailyUsageByIngredient, runsOutBeforeDelivery, suggestQty } from "./forecast";
+import { refreshSourcing } from "./sourcing";
 import {
   getIngredient, getReorder, getSupplier, openReorderFor, round,
   toIngredient, toLot, toReorder, toWaste, usableLots, usableQty,
@@ -24,10 +26,11 @@ function levelFor(total: number, reorderPoint: number): StockLevel {
   return "ok";
 }
 
-/** Every ingredient with its live stock level, next expiry and any open reorder. */
+/** Every ingredient with its live stock level, next expiry, open reorder, and (with sales history) days of cover. */
 export function listInventory(): IngredientStatus[] {
   const t = nowIso();
   const soon = new Date(now().getTime() + EXPIRING_WINDOW_MS).toISOString();
+  const usage = dailyUsageByIngredient();
   return db()
     .prepare("SELECT * FROM ingredients ORDER BY name")
     .all()
@@ -42,6 +45,7 @@ export function listInventory(): IngredientStatus[] {
         nextExpiry: lots[0]?.expiresAt,
         expiringSoonQty: round(lots.filter((l) => l.expiresAt <= soon).reduce((s, l) => s + l.qtyRemaining, 0)),
         openReorderId: openReorderFor(ingredient.id)?.id,
+        ...coverFor(totalQty, usage.get(ingredient.id)),
       };
     });
 }
@@ -173,23 +177,29 @@ export function proposeReorder(ingredientId: string, reason: ReorderReason, qty?
   const open = openReorderFor(ingredientId);
   if (open) return open;
 
+  // Re-pick the supplier first (prices may have changed) so the order goes to the current best offer.
+  const sourcing = refreshSourcing(ingredientId);
   const ingredient = getIngredient(ingredientId);
-  const orderQty = round(qty ?? ingredient.reorderQty);
+  const suggestion = qty === undefined
+    ? suggestQty(ingredient, usableQty(ingredientId, nowIso()), dailyUsageByIngredient().get(ingredientId))
+    : { qty, note: undefined };
+  const orderQty = round(suggestion.qty);
   if (!(orderQty > 0)) throw new Error(`Invalid reorder qty ${qty}`);
 
   const reorder: Reorder = {
     id: id("ro"),
     ingredientId,
-    supplierId: ingredient.supplierId,
+    supplierId: sourcing.supplierId,
     qty: orderQty,
-    costCents: Math.round(orderQty * ingredient.unitCostCents),
+    costCents: Math.round(orderQty * sourcing.unitCostCents),
     reason,
     status: "proposed",
     createdAt: nowIso(),
+    note: [sourcing.note, suggestion.note].filter(Boolean).join(" · "),
   };
   db()
-    .prepare("INSERT INTO reorders (id, ingredient_id, supplier_id, qty, cost_cents, reason, status, created_at) VALUES (?,?,?,?,?,?,?,?)")
-    .run(reorder.id, reorder.ingredientId, reorder.supplierId, reorder.qty, reorder.costCents, reorder.reason, reorder.status, reorder.createdAt);
+    .prepare("INSERT INTO reorders (id, ingredient_id, supplier_id, qty, cost_cents, reason, status, created_at, note) VALUES (?,?,?,?,?,?,?,?,?)")
+    .run(reorder.id, reorder.ingredientId, reorder.supplierId, reorder.qty, reorder.costCents, reorder.reason, reorder.status, reorder.createdAt, reorder.note ?? null);
 
   // Nonna's allowance: routine and cheap → place it now and tell Grandma afterwards
   // (reorder.placed with autoApproved: true). If the card declines, fall back to asking.
@@ -197,7 +207,7 @@ export function proposeReorder(ingredientId: string, reason: ReorderReason, qty?
     const setAuto = db().prepare("UPDATE reorders SET auto_approved = ? WHERE id = ?");
     setAuto.run(1, reorder.id);
     try {
-      return approveReorder(reorder.id);
+      return placeReorder(reorder.id, { announceDecline: false });
     } catch (err) {
       if (!(err instanceof CardDeclinedError)) throw err;
       setAuto.run(0, reorder.id);
@@ -213,6 +223,13 @@ export function proposeReorder(ingredientId: string, reason: ReorderReason, qty?
  * "proposed" and the `CardDeclinedError` propagates, so the caller can tell Grandma why.
  */
 export function approveReorder(reorderId: string): Reorder {
+  return placeReorder(reorderId, { announceDecline: true });
+}
+
+/** Round a needed limit up to the next $50 so Nonna suggests a tidy number. */
+const tidyLimit = (cents: number) => Math.ceil(cents / 5000) * 5000;
+
+function placeReorder(reorderId: string, opts: { announceDecline: boolean }): Reorder {
   const reorder = getReorder(reorderId);
   if (reorder.status === "placed") return reorder;
   if (reorder.status !== "proposed") throw new Error(`Reorder ${reorderId} is ${reorder.status}, can't approve`);
@@ -221,12 +238,25 @@ export function approveReorder(reorderId: string): Reorder {
   if (!supplier.rampCardId) throw new Error(`${supplier.name} has no card to pay with`);
   const ingredient = getIngredient(reorder.ingredientId);
 
-  const transaction = payments.charge({
-    cardId: supplier.rampCardId,
-    amountCents: reorder.costCents,
-    merchantName: supplier.name,
-    memo: `Reorder ${reorder.id}: ${reorder.qty}${ingredient.unit} ${ingredient.name}`,
-  });
+  let transaction;
+  try {
+    transaction = payments.charge({
+      cardId: supplier.rampCardId,
+      amountCents: reorder.costCents,
+      merchantName: supplier.name,
+      memo: `Reorder ${reorder.id}: ${reorder.qty}${ingredient.unit} ${ingredient.name}`,
+    });
+  } catch (err) {
+    if (err instanceof CardDeclinedError && opts.announceDecline) {
+      const card = payments.getCard(err.cardId);
+      const weeklySpendCents = payments.weeklySpendCents(err.cardId);
+      bus.emit("card.declined", {
+        reorder, cardId: err.cardId, reason: err.reason, weeklySpendCents, spendLimitCents: card.spendLimitCents,
+        suggestedLimitCents: err.reason === "over_limit" ? tidyLimit(weeklySpendCents + reorder.costCents) : undefined,
+      });
+    }
+    throw err;
+  }
 
   const placedAt = nowIso();
   db()
@@ -235,6 +265,20 @@ export function approveReorder(reorderId: string): Reorder {
   const placed: Reorder = { ...reorder, status: "placed", placedAt, rampTransactionId: transaction.id };
   bus.emit("reorder.placed", { reorder: placed, transaction });
   return placed;
+}
+
+/**
+ * Grandma said "yes, raise it": bump a supplier card's weekly limit, then
+ * (optionally) place the reorder that was declined. Sanity cap: at most double the
+ * current limit or +$100, whichever is more, so one misheard sentence can't create a spending spree.
+ */
+export function raiseCardLimit(cardId: string, newLimitCents: number, thenApproveReorderId?: string): { cardId: string; spendLimitCents: number; reorder?: Reorder } {
+  const card = payments.getCard(cardId);
+  if (!Number.isInteger(newLimitCents) || newLimitCents <= card.spendLimitCents) throw new Error(`New limit must be above the current ${card.spendLimitCents}`);
+  const maxNew = Math.max(card.spendLimitCents * 2, card.spendLimitCents + 10000);
+  if (newLimitCents > maxNew) throw new Error(`Won't raise a card limit above ${maxNew} in one go`);
+  payments.setSpendLimit(cardId, newLimitCents);
+  return { cardId, spendLimitCents: newLimitCents, reorder: thenApproveReorderId ? approveReorder(thenApproveReorderId) : undefined };
 }
 
 /** Cancel an open reorder. A placed one is refunded on its Ramp card. */
@@ -333,10 +377,32 @@ export function listWaste(sinceIso?: string): WasteEvent[] {
     .map(toWaste);
 }
 
-/** Run the time-based checks: expiry + deliveries. Safe to call often. */
+/**
+ * Order early when, at the current pace, something will run out before a
+ * delivery could arrive, even though it isn't "low" yet. Always asks (reason
+ * "forecast" is never autopilot). Won't re-ask within 24h after Grandma cancels one.
+ */
+export function scanForecast(): Reorder[] {
+  const t = nowIso();
+  const dayAgo = new Date(now().getTime() - DAY).toISOString();
+  const usage = dailyUsageByIngredient();
+  const recentlyDeclined = db().prepare("SELECT 1 FROM reorders WHERE ingredient_id = ? AND reason = 'forecast' AND status = 'cancelled' AND created_at > ?");
+  const proposed: Reorder[] = [];
+  for (const row of db().prepare("SELECT * FROM ingredients").all()) {
+    const ingredient = toIngredient(row);
+    if (openReorderFor(ingredient.id) || recentlyDeclined.get(ingredient.id, dayAgo)) continue;
+    if (runsOutBeforeDelivery(ingredient, usableQty(ingredient.id, t), usage.get(ingredient.id))) {
+      proposed.push(proposeReorder(ingredient.id, "forecast"));
+    }
+  }
+  return proposed;
+}
+
+/** Run the time-based checks: deliveries, expiry, forecast. Safe to call often. */
 export function tick(): void {
   receiveDueDeliveries();
   scanExpiry();
+  scanForecast();
 }
 
 /**
@@ -364,3 +430,4 @@ export function registerInventoryListeners(): void {
 
 export { autopilotStatus } from "./autopilot";
 export type { AutopilotStatus } from "./autopilot";
+export { listSuppliers, listOffers, setOfferPrice, chooseSupplier } from "./sourcing";

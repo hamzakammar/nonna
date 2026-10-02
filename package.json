@@ -10,7 +10,7 @@
     "db:reset": "tsx scripts/db-reset.ts",
     "simulate": "tsx scripts/simulate.ts",
     "typecheck": "next typegen && tsc --noEmit",
-    "check:pantry": "tsx scripts/check-pantry.ts"
+    "check:pantry": "tsx scripts/check-pantry.ts && tsx scripts/check-pantry-stretch.ts"
   },
   "dependencies": {
     "next": "16.3.8",
