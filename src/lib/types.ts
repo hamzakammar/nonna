@@ -98,6 +98,8 @@ export interface Reorder {
   placedAt?: string;
   receivedAt?: string;
   rampTransactionId?: string;
+  /** true = Nonna's autopilot placed it without asking (routine + under the allowance). Grandma can still cancel it. */
+  autoApproved?: boolean;
 }
 
 export interface WasteEvent {

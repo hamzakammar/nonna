@@ -20,7 +20,7 @@ Grandma doesn't need more software. She needs a helper who **remembers everythin
 
 **Nonna.exe** is a voice-first back office that lives in the bakery. It watches sales, quietly tracks what every sale uses up, notices when something is running low or going bad, and *asks Grandma out loud* whether to reorder. She answers "yes" without putting down the rolling pin.
 
-> *"Mamma mia, cream is low. 1.4 litres left. Should I order 4 litres from Gerald for $20?"*
+> *"Mamma mia, cream is low. 1.4 litres left. Should I order 4 litres from Gerald for $28?"*
 > *"Yes."*
 > *"Done, tesoro. It arrives tomorrow morning."*
 
@@ -62,7 +62,7 @@ Funny on the surface, and useful underneath.
 
 Every team in this track will build "inventory + low-stock alert". Here's what sets us apart:
 
-1. **Zero-UI for the owner.** Grandma never opens an app. Voice in, voice out, with yes/no confirmation for anything that spends money.
+1. **Zero-UI for the owner.** Grandma never opens an app. Voice in, voice out. **Nonna's allowance:** routine restocks under $25 happen on autopilot (announced, one word to undo), and anything bigger or unusual gets a spoken yes/no.
 2. **Rush-aware interruptions.** Nonna knows how busy the shop is and **holds non-urgent news until the rush is over**. No other inventory app is polite.
 3. **Busyness tracking.** A live rush meter and a weekly heatmap from sales cadence, optionally fused with an **on-device camera people counter** (no images stored).
 4. **The Gentle Truth.** Product performance delivered kindly with one concrete fix. It solves the human problem, not just the data problem.

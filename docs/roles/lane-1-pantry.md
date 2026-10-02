@@ -39,9 +39,11 @@ You're the **critical path**: Lane 2's best demo moment ("Should I order cream?"
 ## Status (for other lanes)
 P0 + P1 are done. Prove it with `npm run check:pantry` (runs against a throwaway DB).
 - **Voice (Lane 2):** `VoiceAction` → `approve_reorder` = `approveReorder`, `cancel_reorder` = `cancelReorder`, `order_now` = `orderNow`, `mark_received` = `receiveReorder`, `log_waste` = `logWaste`. `approveReorder` throws `CardDeclinedError` (`reason: "suspended" | "over_limit"`) and leaves the reorder `proposed`.
+- **Nonna's allowance** (`src/lib/inventory/autopilot.ts`): a routine reorder (low_stock/expired, normal qty + supplier, ≤ $25, within $100/week autopilot budget) is placed immediately. It emits `reorder.placed` with `autoApproved: true` and **no** `reorder.proposed`. Everything else emits `reorder.proposed`. `autopilotStatus()` and `GET /api/ramp` → `autopilot` show the budget. Env: `AUTOPILOT_MAX_ORDER_CENTS`, `AUTOPILOT_WEEKLY_BUDGET_CENTS`.
+- With the seed, **cream ($28) asks** (Gerald raised prices; this is the demo's yes/no moment). Flour, sugar, milk, pumpkin and apples restock on autopilot.
 - **`stock.low`** fires once per crossing of the reorder point, and again when stock hits 0. If both happen in one sale, it fires **once** with `totalQty: 0`. Treat `totalQty === 0` as "out", which means `urgent`.
 - **Ledger (Lane 3):** waste is in `waste_events` (or `listWaste(sinceIso)`).
-- **Shop Window (Lane 4):** `GET /api/ramp` returns cards with `weeklySpendCents` + the latest 20 transactions. `POST /api/reorders/:id/approve` returns **402** `{declined, cardId}` when the card declines.
+- **Shop Window (Lane 4):** `GET /api/ramp` returns cards with `weeklySpendCents` + the latest 20 transactions. `POST /api/reorders/:id/approve` returns **402** `{declined, cardId}` when the card declines. `GET /api/ramp` also returns `autopilot: {maxOrderCents, weeklyBudgetCents, spentCents, remainingCents}`. Show it as "Nonna's allowance: $24 of $100 used this week", and badge autopilot reorders on the reorders list.
 - Seeded berries are "expiring soon" at start. `+1 day` on the demo clock expires them (≈$33 waste) and proposes a reorder.
 
 ## Gotchas

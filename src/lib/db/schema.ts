@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS reorders (
   created_at           TEXT NOT NULL,
   placed_at            TEXT,
   received_at          TEXT,
-  ramp_transaction_id  TEXT
+  ramp_transaction_id  TEXT,
+  auto_approved        INTEGER NOT NULL DEFAULT 0  -- placed by the autopilot allowance, no "yes" needed
 );
 
 -- written by: pantry. read by: ledger (waste $), shop window

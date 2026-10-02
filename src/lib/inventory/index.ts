@@ -9,7 +9,8 @@ import type { IngredientStatus, Reorder, ReorderReason, Sale, StockLevel, StockL
 import { bus } from "@/lib/events";
 import { db, id, tx } from "@/lib/db";
 import { now, nowIso, DAY, HOUR } from "@/lib/clock";
-import { payments } from "@/lib/ramp-mock";
+import { payments, CardDeclinedError } from "@/lib/ramp-mock";
+import { isRoutine } from "./autopilot";
 import {
   getIngredient, getReorder, getSupplier, openReorderFor, round,
   toIngredient, toLot, toReorder, toWaste, usableLots, usableQty,
@@ -162,9 +163,11 @@ export function scanExpiry(): { expiring: StockLot[]; expired: WasteEvent[] } {
 }
 
 /**
- * Create a "proposed" reorder. Idempotent: if one is already open
- * (proposed/placed) for this ingredient, returns that one instead.
- * Emits `reorder.proposed`, which makes Nonna ask "Should I order…?"
+ * Create a reorder. Idempotent: if one is already open (proposed/placed) for
+ * this ingredient, returns that one instead.
+ *  - Routine + within the allowance (see ./autopilot.ts) → placed right away,
+ *    emits `reorder.placed` with `autoApproved: true` ("I ordered the usual…, say cancel to undo")
+ *  - Otherwise → "proposed", emits `reorder.proposed` ("Should I order…?")
  */
 export function proposeReorder(ingredientId: string, reason: ReorderReason, qty?: number): Reorder {
   const open = openReorderFor(ingredientId);
@@ -187,6 +190,19 @@ export function proposeReorder(ingredientId: string, reason: ReorderReason, qty?
   db()
     .prepare("INSERT INTO reorders (id, ingredient_id, supplier_id, qty, cost_cents, reason, status, created_at) VALUES (?,?,?,?,?,?,?,?)")
     .run(reorder.id, reorder.ingredientId, reorder.supplierId, reorder.qty, reorder.costCents, reorder.reason, reorder.status, reorder.createdAt);
+
+  // Nonna's allowance: routine and cheap → place it now and tell Grandma afterwards
+  // (reorder.placed with autoApproved: true). If the card declines, fall back to asking.
+  if (isRoutine(reorder)) {
+    const setAuto = db().prepare("UPDATE reorders SET auto_approved = ? WHERE id = ?");
+    setAuto.run(1, reorder.id);
+    try {
+      return approveReorder(reorder.id);
+    } catch (err) {
+      if (!(err instanceof CardDeclinedError)) throw err;
+      setAuto.run(0, reorder.id);
+    }
+  }
   bus.emit("reorder.proposed", { reorder });
   return reorder;
 }
@@ -345,3 +361,6 @@ export function registerInventoryListeners(): void {
   // Next turn, so the other lanes' listeners (registered after us in boot.ts) hear the first events.
   setTimeout(() => tick(), 0);
 }
+
+export { autopilotStatus } from "./autopilot";
+export type { AutopilotStatus } from "./autopilot";

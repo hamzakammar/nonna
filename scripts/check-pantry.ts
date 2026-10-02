@@ -51,14 +51,15 @@ async function main() {
   console.log("reorders");
   const ro = inv.listReorders("proposed").find((r) => r.ingredientId === "ing_cream")!;
   assert.ok(ro, "cream reorder proposed by the stock.low listener");
-  assert.equal(ro.costCents, 2000);
+  assert.equal(ro.costCents, 2800); assert.equal(ro.autoApproved, false);
+  assert.equal(count("reorder.proposed"), 1); assert.equal(count("reorder.placed"), 0);
   assert.equal(inv.proposeReorder("ing_cream", "manual").id, ro.id);
-  ok(`proposed ${ro.qty}ml cream for $${ro.costCents / 100}, idempotent`);
+  ok(`cream $${ro.costCents / 100} is over the $25 allowance → proposed (Nonna asks), idempotent`);
   const placed = inv.approveReorder(ro.id);
   assert.equal(placed.status, "placed"); assert.ok(placed.rampTransactionId);
-  assert.equal(payments.weeklySpendCents("card_gerald"), 2000);
+  assert.equal(payments.weeklySpendCents("card_gerald"), 2800);
   assert.equal(inv.approveReorder(ro.id).rampTransactionId, placed.rampTransactionId);
-  ok("approve charges Gerald's card once ($20), idempotent");
+  ok("approve charges Gerald's card once ($28), idempotent");
 
   console.log("FIFO + running out");
   // Two butter lots: the seeded one expires in ~25 days, add one expiring sooner. FIFO must drain the sooner one first.
@@ -72,6 +73,23 @@ async function main() {
   assert.equal(status("ing_apples").totalQty, 0); assert.equal(status("ing_apples").level, "out");
   assert.equal(count("stock.low"), 2, "low + out in the same sale → one event (totalQty 0)");
   ok("overselling clamps at 0 and fires a single stock.low with totalQty 0");
+
+  console.log("autopilot allowance");
+  const apples = inv.listReorders().find((r) => r.ingredientId === "ing_apples")!;
+  assert.equal(apples.status, "placed"); assert.equal(apples.autoApproved, true); assert.equal(apples.costCents, 2400);
+  assert.equal(count("reorder.proposed"), 1, "routine reorder doesn't ask");
+  assert.equal(payments.weeklySpendCents("card_rosa"), 2400);
+  assert.equal(inv.autopilotStatus().spentCents, 2400);
+  ok("apples ran out → routine $24 restock placed on autopilot, no question asked");
+  process.env.AUTOPILOT_WEEKLY_BUDGET_CENTS = "3000";
+  inv.logWaste("ing_pumpkin", 1600); // 2520g → 920g, below the 1000g reorder point
+  const pumpkin = inv.listReorders().find((r) => r.ingredientId === "ing_pumpkin")!;
+  assert.equal(pumpkin.status, "proposed"); assert.equal(pumpkin.costCents, 1500);
+  ok("$15 pumpkin would exceed the weekly autopilot budget → asks instead");
+  delete process.env.AUTOPILOT_WEEKLY_BUDGET_CENTS;
+  inv.cancelReorder(apples.id);
+  assert.equal(payments.weeklySpendCents("card_rosa"), 0); assert.equal(inv.autopilotStatus().spentCents, 0);
+  ok("'cancel' undoes an autopilot order: refunded, budget restored");
 
   console.log("mock Ramp limits");
   payments.setCardState("card_bean", "SUSPENDED");
@@ -100,8 +118,9 @@ async function main() {
   assert.ok(count("stock.expired") >= 1);
   const berryWaste = inv.listWaste().filter((w) => w.ingredientId === "ing_berries");
   assert.equal(berryWaste.length, 1); assert.equal(berryWaste[0].costCents, Math.round(berryWaste[0].qty * 1.5));
-  assert.ok(inv.listReorders().some((r) => r.ingredientId === "ing_berries" && r.reason === "expired"));
-  ok(`berries expired → $${berryWaste[0].costCents / 100} waste logged, reorder proposed`);
+  const berryRo = inv.listReorders().find((r) => r.ingredientId === "ing_berries")!;
+  assert.equal(berryRo.reason, "expired"); assert.equal(berryRo.status, "proposed"); // $45 > allowance
+  ok(`berries expired → $${berryWaste[0].costCents / 100} waste logged, $45 reorder proposed (over allowance, asks)`);
   assert.equal(inv.listReorders().find((r) => r.id === ro.id)?.status, "received");
   assert.equal(status("ing_cream").totalQty, 1460 + 4000);
   ok("cream delivery auto-received after Gerald's 12h lead time");
