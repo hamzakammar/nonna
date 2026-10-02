@@ -63,9 +63,9 @@ Slide the spice to 🌶️🌶️🌶️. Nonna drafts: *"I brought The Bakery's
 | 2 | 0:40 | ✅ Notebook **#11** + **#12** merged: `/kiosk/notebook` | done |
 | 3 | 1:20 | ✅ Review bot API **#9** merged. ⏳ **Petty Mode panel** (spice slider, Generate 100, wall of cards, Post button) not built | Lane 4 (or @hamzakammar) |
 | 4 | 0:15, 1:35 | ⚠️ **Nonna speaks.** Lane 2 *removed* spoken output ("Replace speech output with listening commands"): `/kiosk/listen` hears and shows text, but says nothing. **Decide:** bring back browser TTS for the question + veto, or have the presenter voice Nonna (see "If something breaks"). Yes/No buttons already work there. | @natelamarche + team |
-| 5 | 0:15 | `/pos` till: tap tiles → `POST /api/sales` (still a placeholder) | Lane 4 / @Mo-Naq1 |
-| 6 | 0:15, 1:00 | `/demo` remote: **Sell 7 parfaits**, **The Bakery runs a sale** (`POST /api/pricewatch/refresh {"mockVariant":"sale"}`), **Reset** | Lane 4 (or @hamzakammar) |
-| 7 | 1:00 | Price-drop shown on screen (advice card) and spoken (`competitor.prices` → notify) | Lane 4 + @natelamarche |
+| 5 | 0:15 | ✅ `/pos` till (#14). Verified: 7 Fall Parfaits → Nonna proposes the $28 cream order | done |
+| 6 | 0:15, 1:00 | ✅ `/demo` remote (#14): clock, rush, reset, **The Bakery runs a sale 🏷️**. (No one-tap "Sell 7 parfaits": use `/pos`.) | done |
+| 7 | 1:00 | ✅ On screen: "Prices nearby" panel on `/kiosk/business` (#14). ⏳ Spoken: `competitor.prices` → notify (see row 4) | @natelamarche |
 | 8 | All | 2 full rehearsals on the demo laptop + backup video | everyone |
 
 **Cut order if time runs short:** voice on the 1:00 beat (show the card instead) → `/pos` (use the `/demo` button) → never cut the review bot or the veto.
