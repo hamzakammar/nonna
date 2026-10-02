@@ -219,10 +219,61 @@ export function rushStatus(): RushStatus {
   return { now: level as RushStatus["now"], label: LABELS[level], nextRushAt };
 }
 
+/** Local "YYYY-MM-DD" → that day's [start, end) in the shop's time zone. */
+function localDayBounds(day: string): { start: Date; end: Date } {
+  const [y, m, d] = day.split("-").map(Number);
+  return { start: new Date(y, m - 1, d), end: new Date(y, m - 1, d + 1) };
+}
+
+const localDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+/** Morning batch on `day`, and units sold that day that came off the shelf. null = no batch that day. */
+function freshBatch(productId: string, day: string, excludeSaleId: string): { made: number; offShelf: number } | null {
+  const q = (sql: string, ...args: (string | number)[]) => (db().prepare(sql).get(...args) as { n: number | null }).n;
+  const made = q("SELECT SUM(qty) AS n FROM prep_tasks WHERE day = ? AND product_id = ? AND kind = 'morning'", day, productId);
+  if (made === null) return null;
+  const { start, end } = localDayBounds(day);
+  const sold =
+    q(
+      `SELECT COALESCE(SUM(si.qty), 0) AS n FROM sale_items si JOIN sales s ON s.id = si.sale_id
+        WHERE si.product_id = ? AND s.at >= ? AND s.at < ? AND s.id != ?`,
+      productId, start.toISOString(), end.toISOString(), excludeSaleId,
+    ) ?? 0;
+  // Units made for a specific customer go straight to them, never onto the shelf.
+  const madeToOrder =
+    q(
+      "SELECT COALESCE(SUM(qty), 0) AS n FROM prep_tasks WHERE day = ? AND product_id = ? AND kind = 'order' AND sale_id IS NOT NULL",
+      day, productId,
+    ) ?? 0;
+  return { made, offShelf: sold - madeToOrder };
+}
+
+/**
+ * Yesterday's leftovers that carry into `day`: what was left of yesterday's morning batch.
+ * Only one day back, because anything older is thrown out. 0 when yesterday had no batch.
+ */
+export function carriedInto(productId: string, day: string): number {
+  const { start } = localDayBounds(day);
+  start.setDate(start.getDate() - 1);
+  const batch = freshBatch(productId, localDay(start), "");
+  return batch ? Math.max(0, batch.made - batch.offShelf) : 0;
+}
+
+/**
+ * Units of `productId` on the shelf on `day`, ignoring sale `excludeSaleId`:
+ * the morning batch + yesterday's leftovers − units sold off the shelf.
+ * null when there's no morning batch that day.
+ */
+export function shelfLeft(productId: string, day: string, excludeSaleId = ""): number | null {
+  const batch = freshBatch(productId, day, excludeSaleId);
+  if (!batch) return null;
+  return Math.max(0, batch.made + carriedInto(productId, day) - batch.offShelf);
+}
+
 /**
  * How many of each product to make for `dateIso` (default: tomorrow). Basis: the same weekday
- * over the last 3 weeks, scaled by the product's current trend. Drinks are made to order, so
- * they're left out. (No leftover counts exist yet, so nothing is subtracted for them.)
+ * over the last 3 weeks, scaled by the product's current trend, minus the day before's leftovers
+ * (from the make-list) once that day has closed. Drinks are made to order, so they're left out.
  */
 export function prepForecast(dateIso?: string): PrepSuggestion[] {
   // "2026-10-03" on its own parses as UTC midnight, which is the evening before in the shop. Read it as local.
@@ -252,6 +303,13 @@ export function prepForecast(dateIso?: string): PrepSuggestion[] {
     .reverse(); // oldest first, so the basis reads 12, 13, 16
   const weekday = WEEKDAYS[target.getDay()];
 
+  // Yesterday's leftovers are only final once yesterday's shop has closed.
+  const targetDay = localDay(target);
+  const yesterdayClose = new Date(target);
+  yesterdayClose.setDate(yesterdayClose.getDate() - 1);
+  yesterdayClose.setHours(CLOSING_HOUR, 0, 0, 0);
+  const leftoversKnown = yesterdayClose <= now();
+
   return performanceRows(7)
     .filter((row) => row.category !== "drink")
     .map((row): PrepSuggestion => {
@@ -264,10 +322,13 @@ export function prepForecast(dateIso?: string): PrepSuggestion[] {
       const avg = counts.reduce((a, b) => a + b, 0) / counts.length;
       // Trend from the last 7 days vs the 7 before, capped so one odd week can't double the batch.
       const factor = row.trend === "steady" || row.change === null ? 1 : Math.min(1.3, Math.max(0.7, 1 + row.change));
+      const needed = Math.round(avg * factor);
+      const leftover = leftoversKnown ? Math.min(needed, carriedInto(row.productId, targetDay)) : 0;
       const basis =
         `avg of the last ${counts.length} ${weekday}s: ${counts.join(", ")}` +
-        (factor === 1 ? "" : `, ${factor > 1 ? "+" : ""}${Math.round((factor - 1) * 100)}% for this week's trend`);
-      return { productId: row.productId, name: row.name, suggestedQty: Math.round(avg * factor), basis };
+        (factor === 1 ? "" : `, ${factor > 1 ? "+" : ""}${Math.round((factor - 1) * 100)}% for this week's trend`) +
+        (leftover ? `, minus ${leftover} left over from ${WEEKDAYS[(target.getDay() + 6) % 7]}` : "");
+      return { productId: row.productId, name: row.name, suggestedQty: needed - leftover, basis };
     })
     .sort((a, b) => b.suggestedQty - a.suggestedQty);
 }
