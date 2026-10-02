@@ -56,7 +56,7 @@ One Next.js app, one SQLite file, one in-process event bus. Simple enough to run
 | `POST /api/ramp/limit` `{cardId, newLimitCents, thenApproveReorderId?}` | 1 | `{cardId, spendLimitCents, reorder?}` |
 | `GET /api/pricewatch` | 1 | `{competitors, prices: CompetitorPrice[], advice: PriceAdvice[], refresh: {provider, lastRefreshAt, googleUsage}}` |
 | `POST /api/pricewatch/refresh` `{provider?, mockVariant?}` | 1 | `{provider, at, results: CompetitorRefresh[]}` (also runs daily by itself) |
-| `POST /api/pricewatch/roast` `{competitorId?, spice?, seed?}` | 1 | Petty Mode parody drafts (mock rivals only, 403 otherwise) |
+| `POST /api/pricewatch/roast` `{competitorId?, spice?, seed?, count?: 1–100}` | 1 | Petty Mode / review bot parody drafts + `stats` (mock rivals only, 403 otherwise) |
 | `POST /api/pricewatch/roast/post` | 1 | always **418** `{posted: false, nonna}`: never posts |
 | `GET /mock/<slug>/<path>` | 1 | the mock competitor websites (fixtures), for viewing |
 | `POST /api/pricewatch/prices` `{competitorName?, items:[{itemName, priceCents}], source?}` | 1 | `{prices, advice}` |

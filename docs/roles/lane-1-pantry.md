@@ -63,7 +63,7 @@ Nobody types competitor prices. Once a day on the demo clock (`src/lib/pricewatc
 Google Maps / Uber Eats pages are never scraped (against their terms, and Places has no menu prices anyway). Google names aren't stored either: we keep the place id (allowed) and take the name from their own website.
 Demo lever: `POST /api/pricewatch/refresh {"mockVariant":"sale"}` makes The Bakery's mock site drop its parfait to $6.95. Mock sites are viewable at `/mock/the-bakery/menu`.
 
-**Nonna's Petty Mode 😤** (stage joke, `src/lib/pricewatch/roast.ts`): `POST /api/pricewatch/roast {spice: 1|2|3}` → three absurd one-star "reviews" of the rival, built from real Price Watch numbers. `POST /api/pricewatch/roast/post` is the "Post to Google" button: it **never posts** and always returns **418** with Nonna's veto (*"Absolutely not. We beat them with better parfaits, not lies."*), which is the punchline. Mock competitors only (real ones → 403). No Google/Yelp integration exists, so keep it that way.
+**Nonna's Petty Mode 😤** (stage joke, `src/lib/pricewatch/roast.ts`): `POST /api/pricewatch/roast {spice: 1|2|3, count: 1–100}` → up to **100** unique absurd one-star "reviews" of the rival (reviewer × opener × complaint × closer, built from real Price Watch numbers), with `stats: {written, posted: 0}`. `POST /api/pricewatch/roast/post` is the "Post to Google" button: it **never posts** and always returns **418** with Nonna's veto (*"Absolutely not. We beat them with better parfaits, not lies."*), which is the punchline. Mock competitors only (real ones → 403). No Google/Yelp integration exists, so keep it that way.
 
 Fallbacks when automation can't read a site:
 - **Mock feed**: The Bakery's menu (the rival named in the brief), seeded with one example of each verdict

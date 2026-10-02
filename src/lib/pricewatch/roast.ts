@@ -1,9 +1,10 @@
 /**
  * LANE 1: NONNA'S PETTY MODE 😤. A stage joke.
  *
- * Nonna drafts outrageously petty one-star "reviews" of the rival bakery,
- * built from real Price Watch numbers. Then, when you hit "Post to Google",
- * she refuses. The veto IS the punchline.
+ * Nonna drafts outrageously petty one-star "reviews" of the rival bakery
+ * (up to 100 at once, "the review bot"), built from real Price Watch numbers.
+ * Then, when you hit "Post to Google", she refuses. The veto IS the punchline:
+ * "100 reviews written, 0 posted."
  *
  * Deliberate limits (keep them if you edit this):
  *  - Mock competitors only. Price Watch can discover REAL bakeries (OSM/Google),
@@ -30,6 +31,7 @@ interface Facts {
   ourPrice: string;
   ourShop: string;
   diff: string;
+  diffCents: number; // how much more they charge than us (0 if they don't)
   pricey: string; // e.g. "3 of 5" (live review signal), or "" if unknown
 }
 
@@ -50,10 +52,35 @@ const TEMPLATES: Record<Spice, Template[]> = {
   3: [
     { stars: 1, text: (f) => `ZERO stars (Google made me pick one). I survived three wars and the cream shortage of 1987, but I did not survive ${f.competitor}'s ${f.item}. ${f.theirPrice}. SHAME. Two blocks away it's ${f.ourPrice} and made with love and spite.` },
     { stars: 1, text: (f) => `I brought ${f.competitor}'s ${f.item} home and my cat filed a complaint with the city.` },
-    { stars: 1, text: (f) => `${f.competitor} charges ${f.diff} more than ${f.ourShop} for a worse ${f.item}. I have informed my priest. He is also disappointed.` },
+    {
+      stars: 1,
+      text: (f) =>
+        f.diffCents > 0
+          ? `${f.competitor} charges ${f.diff} more than ${f.ourShop} for a worse ${f.item}. I have informed my priest. He is also disappointed.`
+          : `${f.theirPrice} for ${f.competitor}'s ${f.item}, and it tastes like regret. I have informed my priest. He is also disappointed.`,
+    },
     { stars: 1, text: (f) => `I would rather eat my own rolling pin than another ${f.item} from ${f.competitor}. At least the rolling pin is honest.` },
   ],
 };
+
+// Reviewers, openers and closers are combined with the complaints above, giving hundreds of unique drafts.
+const REVIEWERS = [
+  "DefinitelyNotNonna1931", "Totally Real Customer", "A Very Disappointed Cat", "Gerald's Cousin (unrelated)",
+  "Local Man Who Knows Pastry", "Anonymous Grandmother", "PumpkinTruther", "xX_CannoliKing_Xx", "Your Conscience", "Some Guy Named Tony",
+];
+const OPENERS: Record<Spice, string[]> = {
+  1: ["Hmm.", "Well.", "I wanted to love it.", "Where do I begin.", "Visited on a Tuesday."],
+  2: ["Unbelievable.", "I'm writing this from the parking lot.", "My hands are still shaking.", "Let me be clear.", "Wow. Just wow."],
+  3: ["I am writing this by candlelight, with a grudge.", "Gather round, children.", "This is a warning.", "I have seen things.", "Call my lawyer. Call my priest."],
+};
+const CLOSERS: Record<Spice, string[]> = {
+  1: ["Two stars, for the napkins.", "I'll stick to my nonna's.", "Meh.", "Fine. FINE."],
+  2: ["Never again.", "Do better.", "My nonna would weep.", "The cat agrees."],
+  3: ["Pray for them.", "May their ovens never preheat.", "I'm telling everyone. EVERYONE.", "Nonna has spoken."],
+};
+export const MAX_ROASTS = 100;
+
+const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
 
 const VETOES = [
   "Absolutely not. We beat them with better parfaits, not lies.",
@@ -78,13 +105,20 @@ function rivalItems(competitorId: string) {
     .sort((a, b) => b.theirs.priceCents - b.ours.price_cents - (a.theirs.priceCents - a.ours.price_cents));
 }
 
-export async function roastCompetitor(competitorId: string, spice: Spice = 2, seed = Math.floor(Math.random() * 1e6)) {
+export interface RoastDraft {
+  reviewer: string;
+  stars: number;
+  text: string;
+}
+
+export async function roastCompetitor(competitorId: string, spice: Spice = 2, seed = Math.floor(Math.random() * 1e6), count = 3) {
   const competitor = listCompetitors().find((c) => c.id === competitorId);
   if (!competitor) throw new Error(`Unknown competitor ${competitorId}`);
   if (competitor.source !== "mock") {
     throw new RoastRefusedError(`${competitor.name} is a real business. Nonna only roasts the fictional ones.`);
   }
   if (![1, 2, 3].includes(spice)) throw new Error("Spice is 1, 2 or 3");
+  const n = Math.min(Math.max(1, Math.floor(count)), MAX_ROASTS);
 
   const items = rivalItems(competitor.id);
   if (!items.length) throw new Error(`Nonna knows nothing about ${competitor.name}'s menu yet. Run a Price Watch refresh first.`);
@@ -93,9 +127,23 @@ export async function roastCompetitor(competitorId: string, spice: Spice = 2, se
   const place = (await discover("mock")).find((p) => p.externalId === competitor.externalId);
   const signal = place?.reviews?.length ? reviewPriceSignal(place.reviews) : undefined;
 
-  const templates = TEMPLATES[spice];
-  const drafts = [0, 1, 2].map((i) => {
-    const { theirs, ours } = items[i % Math.min(items.length, 2)]; // focus the fire on the worst offenders
+  const complaints = TEMPLATES[spice];
+  const openers = OPENERS[spice];
+  const closers = CLOSERS[spice];
+  // Walk the reviewer × opener × complaint × closer grid with a stride coprime to its size:
+  // every draft is a different combination, and the same seed gives the same set.
+  const total = REVIEWERS.length * openers.length * complaints.length * closers.length;
+  let stride = 7919;
+  while (gcd(stride, total) !== 1) stride += 2;
+  const start = Math.abs(seed) % total;
+
+  const drafts: RoastDraft[] = Array.from({ length: n }, (_, k) => {
+    let idx = (start + k * stride) % total;
+    const c = idx % closers.length; idx = Math.floor(idx / closers.length);
+    const t = idx % complaints.length; idx = Math.floor(idx / complaints.length);
+    const o = idx % openers.length; idx = Math.floor(idx / openers.length);
+    const r = idx % REVIEWERS.length;
+    const { theirs, ours } = items[k % Math.min(items.length, 3)]; // focus the fire on the worst offenders
     const facts: Facts = {
       competitor: competitor.name,
       item: theirs.itemName,
@@ -103,10 +151,11 @@ export async function roastCompetitor(competitorId: string, spice: Spice = 2, se
       ourPrice: $(ours.price_cents),
       ourShop: shopLocation().name,
       diff: $(Math.max(theirs.priceCents - ours.price_cents, 0)),
+      diffCents: Math.max(theirs.priceCents - ours.price_cents, 0),
       pricey: signal?.saysPricey ? `${signal.saysPricey} of ${signal.reviewsRead}` : "",
     };
-    const t = templates[(templates.indexOf(pick(templates, seed, 0)) + i) % templates.length];
-    return { stars: t.stars, text: t.text(facts) };
+    const reviewer = REVIEWERS[r] === "Totally Real Customer" ? `Totally Real Customer #${k + 1}` : REVIEWERS[r];
+    return { reviewer, stars: complaints[t].stars, text: `${openers[o]} ${complaints[t].text(facts)} ${closers[c]}` };
   });
 
   return {
@@ -115,6 +164,7 @@ export async function roastCompetitor(competitorId: string, spice: Spice = 2, se
     spice,
     spiceLabel: SPICE_LABELS[spice],
     drafts,
+    stats: { written: drafts.length, posted: 0, averageStars: Math.round((drafts.reduce((s, d) => s + d.stars, 0) / drafts.length) * 10) / 10 },
     parody: true as const,
     notice: "Parody for a hackathon demo. Fictional bakery. Never posted anywhere.",
   };
