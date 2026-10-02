@@ -48,6 +48,9 @@ npm run dev            # Chrome, full screen, zoom 110%
 - **Speaker loud.** Nonna's voice is half the show.
 - `npm run db:reset` between rehearsals; the seed is built for this script (Gerald's card at 75% → 98% after the cream order, The Bakery's sale lever, 2 weeks of notebook history).
 
+## Optional beat: Petty Mode 😤 (15s, the closer)
+Slide the spice to 🌶️🌶️🌶️. Nonna drafts: *"I brought The Bakery's Butter Croissant home and my cat filed a complaint with the city."* Presenter hovers over **Post to Google**… clicks… Nonna: *"Absolutely not. We beat them with better parfaits, not lies."* Then: "She's petty, not a criminal. Nonna wins on price, and now you know exactly by how much."
+
 ## If something breaks
 - Mic fails → Grandma taps the giant **YES**. Don't apologise; it's the designed fallback.
 - No sound → the presenter reads Nonna's bubble in a grandma voice. (Honestly, rehearse this anyway; it's funny.)
