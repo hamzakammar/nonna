@@ -19,6 +19,9 @@
 - [ ] **Event → notification mapping** in `registerNotifyListeners()`:
   - `reorder.proposed` → `nudge` with `awaitingAnswer: { question: "Should I order 4 litres of cream from Gerald's Dairy for $28?", onYes: approve_reorder, onNo: snooze }`
   - `reorder.placed` with `reorder.autoApproved === true` (Nonna's allowance, routine restock ≤ $25) → `info`, announced **after the fact** with an undo: `awaitingAnswer: { question: "I ordered the usual flour from BulkMart, $15. Want to keep it?", onYes: none, onNo: cancel_reorder }`. Also accept "cancel" without the wake word for a minute or so.
+  - `card.declined` (over_limit) → `nudge`: *"Gerald's card is maxed for the week, $560 of $600. Raise it to $650 and order?"* `onYes: { type: "raise_card_limit", cardId, newLimitCents: suggestedLimitCents, thenApproveReorderId: reorder.id }`. For `suspended`, just explain it. Don't offer a raise.
+  - `price.changed` → `nudge` (P1): lead with `weeklyImpactCents`, then the switch: *"Gerald raised cream 36%. That's $9 more a week on parfaits. Maple Hill is local and cheaper now, so I'll buy from them."* If `after.supplierId === before.supplierId`, there's no switch to announce.
+  - Reorder `note` explains the supplier and qty in plain words. Use it when Grandma asks "why so much?" or "why them?".
   - `stock.expiring` → `nudge` · `stock.expired` → `info` (include waste $) · `reorder.placed` (Grandma-approved) / `received` → `info`
   - Out of stock (level `out`) on any ingredient → `urgent`
 - [ ] **Ears** (`useNonnaEars`): continuous recognition, wake word "Nonna" (also match "nona", "nana", "nonnah"; STT is sloppy), auto-restart on `end`, no wake word needed while `expectingAnswer`. **Pause while speaking** so she doesn't hear herself.

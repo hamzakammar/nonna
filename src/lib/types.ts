@@ -76,7 +76,50 @@ export interface IngredientStatus {
   nextExpiry?: string; // soonest expiresAt among lots with qty > 0
   expiringSoonQty: number; // qty expiring within 24h (demo clock)
   openReorderId?: string; // so we never double-order
+  /** Average use per day over the last 7 days of sales (base units). Absent with no sales history. */
+  dailyUsage?: number;
+  /** totalQty / dailyUsage. Absent with no sales history. */
+  daysOfCover?: number;
+  /** When stock hits 0 at the current pace (demo clock). */
+  runsOutAt?: string;
 }
+
+/** One supplier's price for one ingredient. An ingredient can have several. */
+export interface SupplierOffer {
+  supplierId: string;
+  ingredientId: string;
+  unitCostCents: number;
+}
+
+/** Result of a supplier price change (the "trade war" demo). All numbers are computed, so Nonna can say them as-is. */
+export interface PriceChange {
+  ingredientId: string;
+  ingredientName: string;
+  supplierId: string;
+  supplierName: string;
+  oldUnitCostCents: number;
+  newUnitCostCents: number;
+  pctChange: number; // +36 = 36% more expensive
+  /** Who we buy from, before and after. Different if the change made someone else the better pick. */
+  before: { supplierId: string; supplierName: string; unitCostCents: number };
+  after: { supplierId: string; supplierName: string; unitCostCents: number; reason: SourcingReason };
+  /** Margin impact on every product that uses this ingredient, at the cost we'll actually pay. */
+  products: {
+    productId: string;
+    name: string;
+    priceCents: number;
+    oldCostCents: number;
+    newCostCents: number;
+    oldMarginPct: number;
+    newMarginPct: number;
+    unitsLast7Days: number;
+    /** Extra cost per week at last week's sales (negative = saving). The number Nonna should lead with. */
+    weeklyImpactCents: number;
+  }[];
+  weeklyImpactCents: number; // sum over products
+}
+
+export type SourcingReason = "only_option" | "cheapest" | "local_within_10pct";
 
 export type ReorderStatus =
   | "proposed" // system wants to order, waiting for Nonna's "yes"
@@ -98,6 +141,8 @@ export interface Reorder {
   placedAt?: string;
   receivedAt?: string;
   rampTransactionId?: string;
+  /** Why this supplier and this qty, in plain words, e.g. "Maple Hill Creamery (local, 7% more than Gerald's Dairy) · ~5 days of cover". */
+  note?: string;
   /** true = Nonna's autopilot placed it without asking (routine + under the allowance). Grandma can still cancel it. */
   autoApproved?: boolean;
 }
@@ -197,7 +242,9 @@ export type NotificationKind =
   | "delivery_arrived"
   | "rush_incoming"
   | "gentle_truth"
-  | "daily_summary";
+  | "daily_summary"
+  | "card_declined"
+  | "price_changed";
 
 export type Channel = "speaker" | "dashboard" | "messenger";
 
@@ -225,6 +272,8 @@ export type VoiceAction =
   | { type: "mark_received"; reorderId: string }
   | { type: "log_waste"; ingredientId: string; qty: number }
   | { type: "snooze"; notificationId: string; minutes: number }
+  /** "Gerald's card is maxed, raise it to $700 and order?" → yes */
+  | { type: "raise_card_limit"; cardId: string; newLimitCents: number; thenApproveReorderId?: string }
   | { type: "none" };
 
 /** Body/response of POST /api/voice */
@@ -271,6 +320,16 @@ export interface EventMap {
   "reorder.received": { reorder: Reorder; lot: StockLot };
   "rush.changed": { status: RushStatus };
   "insight.ready": { truths: GentleTruth[] };
+  /** Grandma approved, but the card said no. Nonna offers to raise the limit (suggestedLimitCents). */
+  "card.declined": {
+    reorder: Reorder;
+    cardId: string;
+    reason: "suspended" | "over_limit";
+    weeklySpendCents: number;
+    spendLimitCents: number;
+    suggestedLimitCents?: number; // only for over_limit
+  };
+  "price.changed": { change: PriceChange };
   notify: { notification: NonnaNotification };
   "clock.changed": { now: string };
 }

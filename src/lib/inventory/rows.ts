@@ -44,6 +44,7 @@ export const toReorder = (r: R): Reorder => ({
   placedAt: r.placed_at ? String(r.placed_at) : undefined,
   receivedAt: r.received_at ? String(r.received_at) : undefined,
   rampTransactionId: r.ramp_transaction_id ? String(r.ramp_transaction_id) : undefined,
+  note: r.note ? String(r.note) : undefined,
   autoApproved: Number(r.auto_approved) === 1,
 });
 

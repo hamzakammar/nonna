@@ -51,6 +51,9 @@ One Next.js app, one SQLite file, one in-process event bus. Simple enough to run
 | `GET /api/inventory` | 1 | `IngredientStatus[]` |
 | `GET /api/reorders` · `POST /api/reorders` `{ingredientId, qty?}` | 1 | `Reorder[]` / `Reorder` |
 | `POST /api/reorders/:id/approve\|cancel\|receive` | 1 | `Reorder` / `StockLot` (approve → **402** `{declined, cardId}` if the card declines) |
+| `GET /api/suppliers` | 1 | suppliers with `offers: {ingredientId, ingredientName, unitCostCents, isCurrent}[]` |
+| `POST /api/suppliers/price` `{supplierId, ingredientId, unitCostCents}` | 1 | `PriceChange` (the trade-war button) |
+| `POST /api/ramp/limit` `{cardId, newLimitCents, thenApproveReorderId?}` | 1 | `{cardId, spendLimitCents, reorder?}` |
 | `GET /api/ramp` | 1 | `{cards: (RampCard & {weeklySpendCents})[], transactions: RampTransaction[], autopilot: AutopilotStatus}` |
 | `GET /api/analytics/products\|busyness\|rush\|prep\|truths\|waste?days=N` | 3 | see `src/lib/analytics` |
 | `POST /api/voice` `{transcript, pendingNotificationId?}` | 2 | `VoiceResponse` |
@@ -67,6 +70,8 @@ Unbuilt functions return **501** `{error:"Not implemented yet: laneN …"}`. The
 | `stock.low` | Lane 1 | Lane 1 (propose reorder), Lane 2 |
 | `stock.expiring` / `stock.expired` | Lane 1 | Lane 2 |
 | `reorder.proposed` / `placed` / `received` | Lane 1 | Lane 2 (`placed` with `autoApproved` = announce + offer undo) |
+| `card.declined` | Lane 1 | Lane 2 (offer to raise the limit) |
+| `price.changed` | Lane 1 | Lane 2 (announce + weekly $ impact), Lane 3 (margins already updated in `ingredients`) |
 | `rush.changed` | Lane 3 | Lane 2 (hold or flush the queue), Lane 4 via SSE |
 | `insight.ready` | Lane 3 | Lane 2 |
 | `notify` | Lane 2 | (internal) |

@@ -22,6 +22,9 @@ npm run db:reset && npm run simulate -- --days 21 --seed 42 && npm run dev
 | 2:25 | **Analytics** | Dashboard: busyness heatmap, "bake tomorrow" list, waste $. |
 | 2:45 | **Close** | "Zero screens for Grandma. Every number computed, never made up. Spend tracked on every supplier card." |
 
+## Optional beat: Trade war (swap in for "Ask anything" if Pantry is the strongest lane)
+`/demo` → **Trade war 💥** (Gerald +36% on cream). Nonna: *"Gerald raised cream 36%. That's $9 more a week on parfaits. Maple Hill down the road is cheaper now, so I'll buy from them."* The dashboard shows margins before → after and the supplier switch. That's the wishlist's "Trade war" and "Local legend" in 20 seconds.
+
 ## If something breaks
 - Mic fails → use the YES/NO buttons and keep going. Don't apologise; that's the fallback working as designed.
 - Claude is slow → the fallback template voice still speaks. Keep going.
