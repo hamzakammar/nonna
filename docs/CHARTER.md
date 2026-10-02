@@ -20,7 +20,7 @@ Grandma doesn't need more software. She needs a helper who **remembers everythin
 
 **Nonna.exe** is a voice-first back office that lives in the bakery. It watches sales, quietly tracks what every sale uses up, notices when something is running low or going bad, and *asks Grandma out loud* whether to reorder. She answers "yes" without putting down the rolling pin.
 
-> *"Mamma mia, cream is low. 1.4 litres left. Should I order 4 litres from Gerald for $20?"*
+> *"Mamma mia, cream is low. 1.4 litres left. Should I order 4 litres from Gerald for $28?"*
 > *"Yes."*
 > *"Done, tesoro. It arrives tomorrow morning."*
 
@@ -62,13 +62,14 @@ Funny on the surface, and useful underneath.
 
 Every team in this track will build "inventory + low-stock alert". Here's what sets us apart:
 
-1. **Zero-UI for the owner.** Grandma never opens an app. Voice in, voice out, with yes/no confirmation for anything that spends money.
+1. **Zero-UI for the owner.** Grandma never opens an app. Voice in, voice out. **Nonna's allowance:** routine restocks under $25 happen on autopilot (announced, one word to undo), and anything bigger or unusual gets a spoken yes/no.
 2. **Rush-aware interruptions.** Nonna knows how busy the shop is and **holds non-urgent news until the rush is over**. No other inventory app is polite.
 3. **Busyness tracking.** A live rush meter and a weekly heatmap from sales cadence, optionally fused with an **on-device camera people counter** (no images stored).
 4. **The Gentle Truth.** Product performance delivered kindly with one concrete fix. It solves the human problem, not just the data problem.
 5. **Bake-tomorrow forecast + waste in dollars.** Moves from "tracking" to "deciding": *make 14, not 20*, and *you threw away $18 of berries this week*.
 6. **Honest AI.** The LLM never invents a number. Code computes, Nonna talks. Good to say out loud to technical judges.
-7. **Spend controls built in.** Every supplier is paid from its own (mock) Ramp-style card with a weekly limit, so expenses are tracked automatically. Keep it to one sentence in the pitch, but it's there.
+7. **Trade-war proof, local first.** When a supplier hikes prices, Nonna shows the dollars-per-week hit, switches to the best offer, and prefers local growers when they're within 10%. That covers two more wishlist items ("Trade war", "Local legend").
+8. **Spend controls built in.** Every supplier is paid from its own (mock) Ramp-style card with a weekly limit, so expenses are tracked automatically. Keep it to one sentence in the pitch, but it's there.
 
 ## 7. Team & roles
 
@@ -76,7 +77,7 @@ Four lanes, one owner each. Each person may drive their lane with a coding agent
 
 | Lane | Name | Owner | Role doc |
 |---|---|---|---|
-| 1 | 🧺 The Pantry: inventory, expiry, reorders, mock Ramp | _TBD_ | [`roles/lane-1-pantry.md`](roles/lane-1-pantry.md) |
+| 1 | 🧺 The Pantry: inventory, expiry, reorders, mock Ramp | @hamzakammar | [`roles/lane-1-pantry.md`](roles/lane-1-pantry.md) |
 | 2 | 🗣️ The Voice: wake word, STT/TTS, intents, persona, notifications | _TBD_ | [`roles/lane-2-voice.md`](roles/lane-2-voice.md) |
 | 3 | 📈 The Ledger: sales, simulator, analytics, busyness, forecast | _TBD_ | [`roles/lane-3-ledger.md`](roles/lane-3-ledger.md) |
 | 4 | 🪟 The Shop Window: kiosk, dashboard, till, demo, pitch | _TBD_ | [`roles/lane-4-shop-window.md`](roles/lane-4-shop-window.md) |
@@ -142,7 +143,7 @@ By signing, you agree on the goals, non-goals, your lane, and the working agreem
 
 | Name | Lane | Agree? | Comments |
 |---|---|---|---|
-| @hamzakammar | | ☐ | |
+| @hamzakammar | 1 | ☐ | |
 | @markrozin | | ☐ | |
 | @natelamarche | | ☐ | |
 | @Mo-Naq1 | | ☐ | |
