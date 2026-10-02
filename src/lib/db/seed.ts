@@ -71,6 +71,30 @@ const BAKERY_MENU: [string, number, string | null][] = [
   ["Oat Latte", 495, "prd_latte"], // ours $4.75, 20¢ under → hold
 ];
 
+// Two weeks of supplier card charges, so Nonna's Notebook has a story on demo day.
+// [card, merchant, cents, days ago, memo]. Kept well under each card's weekly limit.
+const PAST_CHARGES: [string, string, number, number, string][] = [
+  ["card_gerald", "Gerald's Dairy", 2800, 13, "Weekly order: 4000ml Heavy cream"],
+  ["card_maple", "Maple Hill Creamery", 1280, 12, "Weekly order: 8000ml Whole milk"],
+  ["card_bulk", "BulkMart Wholesale", 6150, 11, "Weekly order: 10000g Flour"],
+  ["card_rosa", "Rosa's Orchard", 2400, 10, "Weekly order: 6000g Apples"],
+  ["card_dave", "Dave's Pumpkin Patch", 1500, 9, "Weekly order: 3000g Pumpkin purée"],
+  ["card_bean", "Bean There Roasters", 7500, 8, "Weekly order: 2500g Espresso beans"],
+  ["card_gerald", "Gerald's Dairy", 3000, 6, "Weekly order: 5000g Greek yogurt"],
+  ["card_gerald", "Gerald's Dairy", 2800, 4, "Weekly order: 4000ml Heavy cream"],
+  ["card_rosa", "Rosa's Orchard", 4500, 3, "Weekly order: 3000g Mixed berries"],
+  ["card_gerald", "Gerald's Dairy", 3200, 2, "Weekly order: 2000g Mascarpone"],
+  ["card_maple", "Maple Hill Creamery", 1280, 1, "Weekly order: 8000ml Whole milk"],
+  ["card_bulk", "BulkMart Wholesale", 1000, 3, "Weekly order: 5000g Sugar"],
+];
+
+// Past charges that Nonna placed herself under her allowance, so the Notebook shows "I did this one myself"
+// and the allowance meter isn't empty. [transaction index above, ingredient, supplier, qty]
+const PAST_AUTOPILOT: [number, string, string, number][] = [
+  [10, "ing_milk", "sup_maple", 8000],
+  [11, "ing_sugar", "sup_bulk", 5000],
+];
+
 const PRODUCTS = [
   { id: "prd_fall_parfait", name: "Fall Parfait", emoji: "🍂", price_cents: 750, category: "parfait" },
   { id: "prd_berry_parfait", name: "Berry Parfait", emoji: "🍓", price_cents: 700, category: "parfait" },
@@ -113,7 +137,7 @@ const LOTS: [string, number, number, number][] = [
 ];
 
 const CARDS = [
-  { id: "card_gerald", display_name: "Gerald's Dairy card", last_four: "4421", spend_limit_cents: 60000, supplier: "sup_gerald" },
+  { id: "card_gerald", display_name: "Gerald's Dairy card", last_four: "4421", spend_limit_cents: 12000, supplier: "sup_gerald" }, // tight on purpose: $90 of $120 already this week
   { id: "card_rosa", display_name: "Rosa's Orchard card", last_four: "1187", spend_limit_cents: 30000, supplier: "sup_rosa" },
   { id: "card_dave", display_name: "Dave's Pumpkin Patch card", last_four: "9032", spend_limit_cents: 20000, supplier: "sup_dave" },
   { id: "card_bulk", display_name: "BulkMart card", last_four: "5566", spend_limit_cents: 80000, supplier: "sup_bulk" },
@@ -124,11 +148,23 @@ const CARDS = [
 export function seed() {
   const t = now().getTime();
   const iso = (ms: number) => new Date(ms).toISOString();
+  /** 9:00 local time, N days ago: when suppliers bill. */
+  const nineAm = (daysAgo: number) => {
+    const d = new Date(t - daysAgo * DAY);
+    d.setHours(9, 0, 0, 0);
+    return d.toISOString();
+  };
 
   tx(() => {
     for (const c of CARDS) {
       insert("ramp_cards", { id: c.id, display_name: c.display_name, last_four: c.last_four, spend_limit_cents: c.spend_limit_cents, state: "ACTIVE" });
     }
+    PAST_CHARGES.forEach(([card_id, merchant_name, amount_cents, daysAgo, memo], n) => {
+      insert("ramp_transactions", {
+        id: `txn_seed_${n}`, card_id, merchant_name, amount_cents, memo,
+        user_transaction_time: nineAm(daysAgo),
+      });
+    });
     for (const s of SUPPLIERS) {
       insert("suppliers", { ...s, ramp_card_id: CARDS.find((c) => c.supplier === s.id)?.id ?? null });
     }
@@ -140,6 +176,14 @@ export function seed() {
       insert("supplier_offers", { ingredient_id, supplier_id, unit_cost_cents });
     }
     for (const p of PRODUCTS) insert("products", { ...p, active: 1 });
+    for (const [n, ingredient_id, supplier_id, qty] of PAST_AUTOPILOT) {
+      const [, , amount_cents, daysAgo] = PAST_CHARGES[n];
+      const at = nineAm(daysAgo);
+      insert("reorders", {
+        id: `ro_seed_${n}`, ingredient_id, supplier_id, qty, cost_cents: amount_cents, reason: "low_stock",
+        status: "received", created_at: at, placed_at: at, received_at: at, ramp_transaction_id: `txn_seed_${n}`, auto_approved: 1,
+      });
+    }
     for (const [product_id, ingredient_id, qty_per_unit] of RECIPES) {
       insert("recipe_items", { product_id, ingredient_id, qty_per_unit });
     }
