@@ -209,19 +209,6 @@ export interface BusynessBucket {
   marginPerHourCents?: number; // avg revenue − ingredient cost earned in this hour
 }
 
-/** What an ingredient price change does to each product that uses it (the trade-war check). */
-export interface CostShockImpact {
-  productId: string;
-  name: string;
-  priceCents: number;
-  unitCostBeforeCents: number; // ingredients per unit, before the change
-  unitCostAfterCents: number;
-  marginBeforeCents: number; // per unit sold
-  marginAfterCents: number;
-  weeklyImpactCents: number; // extra cost per week at the last 7 days' sales
-  priceToKeepMarginCents: number; // new price that keeps the same $ margin, rounded up to 5¢
-}
-
 export interface RushStatus {
   now: BusynessBucket["level"];
   label: "quiet" | "steady" | "busy" | "rush";

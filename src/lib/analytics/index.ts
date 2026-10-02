@@ -6,7 +6,7 @@
  * output but never changes a number. Every function here is deterministic
  * given the DB and clock.now().
  */
-import type { BusynessBucket, CostShockImpact, GentleTruth, PrepSuggestion, ProductPerformance, RushStatus, Trend } from "@/lib/types";
+import type { BusynessBucket, GentleTruth, PrepSuggestion, ProductPerformance, RushStatus, Trend } from "@/lib/types";
 import { bus } from "@/lib/events";
 import { db } from "@/lib/db";
 import { now, DAY } from "@/lib/clock";
@@ -175,53 +175,6 @@ export function busynessHeatmap(days = 28): BusynessBucket[] {
   return buckets.map((b, i) => ({ ...b, level: levels[i] }));
 }
 
-/**
- * Trade-war check: if `ingredientId` costs `percentChange`% more (or less), what happens to
- * every product that uses it? Weekly impact uses the last 7 days of sales.
- */
-export function costShock(ingredientId: string, percentChange: number): CostShockImpact[] {
-  const rows = db()
-    .prepare(
-      `WITH cost AS (${UNIT_COST_SQL})
-       SELECT p.id, p.name, p.price_cents, cost.unit_cost,
-              r.qty_per_unit * i.unit_cost_cents AS ingredient_cost,
-              (SELECT COALESCE(SUM(si.qty), 0) FROM sale_items si JOIN sales s ON s.id = si.sale_id
-                WHERE si.product_id = p.id AND s.at >= ? AND s.at < ?) AS weekly_units
-         FROM recipe_items r
-         JOIN ingredients i ON i.id = r.ingredient_id
-         JOIN products p ON p.id = r.product_id
-         JOIN cost ON cost.product_id = p.id
-        WHERE r.ingredient_id = ? AND p.active = 1`,
-    )
-    .all(isoAgo(7 * DAY), isoAgo(0), ingredientId) as unknown as {
-    id: string;
-    name: string;
-    price_cents: number;
-    unit_cost: number;
-    ingredient_cost: number;
-    weekly_units: number;
-  }[];
-  if (!rows.length) throw new Error(`No active product uses ${ingredientId}`);
-
-  return rows
-    .map((row): CostShockImpact => {
-      const extra = row.ingredient_cost * (percentChange / 100);
-      const after = row.unit_cost + extra;
-      return {
-        productId: row.id,
-        name: row.name,
-        priceCents: row.price_cents,
-        unitCostBeforeCents: Math.round(row.unit_cost),
-        unitCostAfterCents: Math.round(after),
-        marginBeforeCents: Math.round(row.price_cents - row.unit_cost),
-        marginAfterCents: Math.round(row.price_cents - after),
-        weeklyImpactCents: Math.round(extra * row.weekly_units),
-        priceToKeepMarginCents: Math.ceil((row.price_cents + extra) / 5) * 5,
-      };
-    })
-    .sort((a, b) => b.weeklyImpactCents - a.weeklyImpactCents);
-}
-
 const RUSH_WINDOW_MS = 30 * 60 * 1000;
 const CLOSING_HOUR = 18;
 const LABELS: RushStatus["label"][] = ["quiet", "quiet", "steady", "busy", "rush"];
@@ -272,7 +225,13 @@ export function rushStatus(): RushStatus {
  * they're left out. (No leftover counts exist yet, so nothing is subtracted for them.)
  */
 export function prepForecast(dateIso?: string): PrepSuggestion[] {
-  const target = dateIso ? new Date(dateIso) : new Date(now().getTime() + DAY);
+  // "2026-10-03" on its own parses as UTC midnight, which is the evening before in the shop. Read it as local.
+  const dateOnly = dateIso?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const target = dateOnly
+    ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+    : dateIso
+      ? new Date(dateIso)
+      : new Date(now().getTime() + DAY);
   target.setHours(0, 0, 0, 0);
   const first = (db().prepare("SELECT MIN(at) AS at FROM sales").get() as { at: string | null }).at;
   const countDay = db().prepare(
