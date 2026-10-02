@@ -5,6 +5,7 @@
  */
 import { registerInventoryListeners } from "./inventory";
 import { registerAnalyticsListeners } from "./analytics";
+import { registerPrepListeners } from "./sales/prep";
 import { registerNotifyListeners } from "./notify";
 
 const g = globalThis as unknown as { __nonnaBooted?: boolean };
@@ -14,5 +15,6 @@ export function ensureBooted(): void {
   g.__nonnaBooted = true;
   registerInventoryListeners(); // Lane 1
   registerAnalyticsListeners(); // Lane 3
+  registerPrepListeners(); // Lane 3
   registerNotifyListeners(); // Lane 2
 }

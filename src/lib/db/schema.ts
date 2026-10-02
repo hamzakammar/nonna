@@ -158,4 +158,21 @@ CREATE TABLE IF NOT EXISTS ramp_transactions (
   memo                   TEXT,
   receipt_ids            TEXT NOT NULL DEFAULT '[]'
 );
+
+-- the make-list. written by: ledger. read by: shop window, voice
+--   kind 'morning': the shelf batch, sized by the forecast, created once per day
+--   kind 'order':   a sale the shelf couldn't fill, or an order added by hand
+CREATE TABLE IF NOT EXISTS prep_tasks (
+  id          TEXT PRIMARY KEY,
+  day         TEXT NOT NULL,  -- local YYYY-MM-DD
+  product_id  TEXT NOT NULL REFERENCES products(id),
+  qty         INTEGER NOT NULL,
+  kind        TEXT NOT NULL CHECK (kind IN ('morning','order')),
+  note        TEXT NOT NULL DEFAULT '',
+  due_at      TEXT,
+  sale_id     TEXT,
+  created_at  TEXT NOT NULL,
+  done_at     TEXT
+);
+CREATE INDEX IF NOT EXISTS prep_tasks_day ON prep_tasks(day);
 `;

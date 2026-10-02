@@ -184,6 +184,32 @@ export interface RecordSaleInput {
   at?: string; // simulator may backdate; defaults to clock.now()
 }
 
+// ---------- Make-list (prep tasks) ----------
+
+/** One line on the make-list: the morning shelf batch, or an order the shelf couldn't fill. */
+export interface PrepTask {
+  id: string;
+  day: string; // local YYYY-MM-DD
+  productId: string;
+  name: string;
+  emoji: string;
+  qty: number;
+  kind: "morning" | "order";
+  note: string; // e.g. "for the shelf (avg of the last 3 Saturdays: 70, 72, 68)" or "counter order at 11:42"
+  dueAt?: string;
+  saleId?: string;
+  createdAt: string;
+  doneAt?: string;
+}
+
+/** Body of POST /api/sales/todo: an order added by hand (phone, university event, …). */
+export interface AddOrderInput {
+  productId: string;
+  qty: number;
+  note?: string;
+  dueAt?: string;
+}
+
 // ---------- Analytics ----------
 
 export type Trend = "rising" | "steady" | "falling";
