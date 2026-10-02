@@ -24,6 +24,7 @@
   - `competitor.discovered` → `info` (dashboard only): "Spotted a new bakery nearby: Crumb & Co."
   - Refresh results carry a live **review signal** (`reviews.saysPricey` / `saysGoodValue`). Nonna can say "3 of 5 recent reviews call The Bakery pricey". Don't persist review text.
   - `competitor.prices` → `nudge`, spoken only when it's quiet: say each advice's `reason` in Nonna's voice. For `undercut`/`raise`: `awaitingAnswer: { question: "Drop the Fall Parfait to $7.00?", onYes: { type: "set_price", productId, priceCents: suggestedPriceCents } }` → `setPrice()` from `@/lib/pricewatch`. Voice entry: "Nonna, The Bakery's parfait is $7.25" → `recordPrices(…, "voice")`.
+  - Petty Mode: when the kiosk/dashboard gets the 418 veto from `/api/pricewatch/roast/post`, speak `nonna` at full drama. Optional voice trigger: "Nonna, roast The Bakery" → read one draft aloud, then the veto.
   - Reorder `note` explains the supplier and qty in plain words. Use it when Grandma asks "why so much?" or "why them?".
   - `stock.expiring` → `nudge` · `stock.expired` → `info` (include waste $) · `reorder.placed` (Grandma-approved) / `received` → `info`
   - Out of stock (level `out`) on any ingredient → `urgent`

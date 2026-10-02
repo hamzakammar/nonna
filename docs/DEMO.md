@@ -28,6 +28,9 @@ npm run db:reset && npm run simulate -- --days 21 --seed 42 && npm run dev
 ## Optional beat: Price Watch (20s)
 `/demo` → **"The Bakery runs a sale 🏷️"**. Nonna: *"The Bakery just dropped their pumpkin parfait to $6.95. Crumb & Co is at $6.50. We can go to $6.25 and keep a 67% margin. Want me to?"* "Yes." Then the line: *"Nobody typed that. Nonna checks nearby bakeries' websites every morning. Live, it found 11 real bakeries in Waterloo and read 241 prices for free."*
 
+## Optional beat: Petty Mode 😤 (15s, the closer)
+Slide the spice to 🌶️🌶️🌶️. Nonna drafts: *"I brought The Bakery's Butter Croissant home and my cat filed a complaint with the city."* Presenter hovers over **Post to Google**… clicks… Nonna: *"Absolutely not. We beat them with better parfaits, not lies."* Then: "She's petty, not a criminal. Nonna wins on price, and now you know exactly by how much."
+
 ## If something breaks
 - Mic fails → use the YES/NO buttons and keep going. Don't apologise; that's the fallback working as designed.
 - Claude is slow → the fallback template voice still speaks. Keep going.
