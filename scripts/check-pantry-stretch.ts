@@ -108,6 +108,20 @@ async function main() {
   assert.equal(raised.spendLimitCents, 5000); assert.equal(raised.reorder?.status, "placed");
   ok("'yes, raise it' → limit $50 and the order goes through; absurd raises refused");
 
+  console.log("Nonna's Notebook");
+  const { notebookEntries, notebookSummary } = await import("../src/lib/ramp-mock/notebook");
+  inv.cancelReorder(inv.orderNow("ing_sugar").id); // place, then change our mind → a refund line
+  const book = notebookEntries(50);
+  const line = (re: RegExp) => book.find((e) => re.test(e.line));
+  assert.ok(line(/Gerald's Dairy for mascarpone\. Again\. That's 3 times this week\./), "3rd Gerald charge this week");
+  assert.ok(line(/\$75\.00 to Bean There Roasters for espresso beans\. Mamma mia/), "big charge");
+  assert.ok(line(/Maple Hill Creamery for whole milk\. Local, so I don't mind\./), "local supplier");
+  assert.ok(line(/^Got \$10\.00 back from BulkMart Wholesale\. As it should be\.$/), "refund line");
+  ok(`${book.length} entries in Nonna's words: "${line(/Again/)!.line}"`);
+  const summary = notebookSummary();
+  assert.equal(summary.weekTotalCents, summary.cards.reduce((t, c) => t + c.weeklySpendCents, 0));
+  ok(`summary: $${(summary.weekTotalCents / 100).toFixed(2)} this week across ${summary.cards.length} cards; tightest: ${summary.tightest?.displayName} (${summary.tightest?.usedPct}%)`);
+
   console.log("\nAll pantry stretch checks passed ✅");
 }
 
