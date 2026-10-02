@@ -206,6 +206,7 @@ export interface BusynessBucket {
   salesPerHour: number;
   peopleAvg?: number; // only when the camera counter is running
   level: 0 | 1 | 2 | 3 | 4; // 0 = dead, 4 = slammed
+  marginPerHourCents?: number; // avg revenue − ingredient cost earned in this hour
 }
 
 export interface RushStatus {
