@@ -28,7 +28,7 @@ Most of the **differentiators** live in your lane. See the charter § "What make
 
 ## P1: makes the demo great
 - [x] **`gentleTruths(days)`**: for each `struggling` product, a `facts` string with exact numbers (*"Apple Pie: 31 slices in the last 14 days, down 42% from 53. Margin $3.10/slice."*) and one `suggestion` (time-of-day it still sells, pairing with an overstocked ingredient, smaller batch, price test). Also one compliment for the top `star`. Lane 2 makes it sound like Nonna.
-- [x] **`prepForecast(date)`**: per product, average of the same weekday over the last 3 weeks, adjusted by trend, minus yesterday's leftovers if known → *"Make 14 Fall Parfaits tomorrow (avg of the last 3 Saturdays: 12, 13, 16)"*. Leftovers aren't logged anywhere yet, so nothing is subtracted for them.
+- [x] **`prepForecast(date)`**: per product, average of the same weekday over the last 3 weeks, adjusted by trend, minus yesterday's leftovers if known → *"Make 14 Fall Parfaits tomorrow (avg of the last 3 Saturdays: 12, 13, 16)"*. Leftovers come from the make-list (morning batch − units sold off the shelf), are subtracted once the day before has closed, and stay on the shelf for one more day (`shelfLeft` / `carriedInto` in analytics).
 - [x] **`wasteSummary(days)`**: $ lost per ingredient from `waste_events`.
 - [x] **End of day**: on `clock.changed` crossing 18:00, emit `insight.ready` with the truths.
 
@@ -36,6 +36,7 @@ Most of the **differentiators** live in your lane. See the charter § "What make
 - [ ] **Camera people counter** 📷: a client-side TensorFlow.js `coco-ssd` on the kiosk webcam counts people in frame every 10s and POSTs counts to a `people_counts` endpoint. **No images are stored or sent.** Blend into the heatmap as `peopleAvg`. This is "busyness" that isn't just sales, which makes it a strong pitch point.
 - [ ] **Weather-aware forecast**: Open-Meteo (free, no key). Rainy day → more lattes, fewer parfaits.
 - [ ] **"Lost sales"** estimate: minutes a top product was out of stock × its usual sales rate.
+- [x] **Make-list** (our P2 pick, instead of a heatmap screen): `src/lib/sales/prep.ts`, `/api/sales/todo`. A morning shelf batch per product from `prepForecast`, then every sale the shelf can't cover adds "make N for this customer" by itself. Phone or university orders can be added by hand. Drinks never go on it. `?next=1` gives the kiosk its one next task. New table `prep_tasks` (additive).
 - [ ] **Staffing hint**: "Saturday 11–1 needs two people behind the counter."
 
 ## Gotchas

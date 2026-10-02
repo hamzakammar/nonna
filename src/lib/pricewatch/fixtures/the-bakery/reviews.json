@@ -1,0 +1,10 @@
+{
+  "_comment": "Mock Google-style reviews. In the real provider these come live from Places and are never stored.",
+  "reviews": [
+    { "rating": 4, "text": "Lovely croissants but $7.25 for a parfait is a bit pricey." },
+    { "rating": 5, "text": "Best apple slice in town, worth every penny." },
+    { "rating": 3, "text": "Overpriced coffee. The oat latte was $4.95 and lukewarm." },
+    { "rating": 4, "text": "Cozy spot, friendly staff." },
+    { "rating": 2, "text": "Too expensive for what you get." }
+  ]
+}

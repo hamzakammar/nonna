@@ -157,6 +157,80 @@ export interface WasteEvent {
   at: string;
 }
 
+// ---------- Price Watch (competitor prices) ----------
+
+export interface Competitor {
+  id: string;
+  name: string; // "The Bakery"
+  /** How we found them. "manual" = someone typed the name. */
+  source: "manual" | "mock" | "osm" | "google";
+  /** Stable id in that source: "osm:node/123", "google:ChIJ…" (place ids may be stored), "mock:the-bakery". */
+  externalId?: string;
+  website?: string; // only stored once we've fetched it ourselves
+  lastCheckedAt?: string;
+  lastStatus?: CompetitorCheckStatus;
+}
+
+export type CompetitorCheckStatus = "ok" | "no_website" | "robots_blocked" | "no_menu_found" | "unchanged" | "error";
+
+/** One observed price on a competitor's menu, matched (if we can) to one of our products. */
+export interface CompetitorPrice {
+  id: string;
+  competitorId: string;
+  itemName: string; // as written on their menu: "Pumpkin Spice Parfait"
+  priceCents: number;
+  productId?: string; // our closest product, if any
+  observedAt: string;
+  source: "mock" | "photo" | "voice" | "manual" | "website";
+}
+
+/** What reviews say about a competitor's prices. Used live and never stored (Google's caching rules). */
+export interface ReviewPriceSignal {
+  reviewsRead: number;
+  saysPricey: number; // "overpriced", "expensive", "pricey"…
+  saysGoodValue: number; // "cheap", "good value", "worth it"…
+  /** Prices quoted in reviews, e.g. "$9 for a parfait". A hint only, never recorded as a menu price. */
+  mentions: { snippet: string; priceCents: number }[];
+}
+
+/** Outcome of one automatic refresh for one competitor. */
+export interface CompetitorRefresh {
+  competitorId: string;
+  name: string;
+  source: Competitor["source"];
+  status: CompetitorCheckStatus;
+  menuUrl?: string;
+  method?: "shopify" | "woocommerce" | "json-ld" | "text" | "claude"; // how the menu was read
+  itemsFound: number;
+  changed: CompetitorPrice[]; // new or different prices only
+  reviews?: ReviewPriceSignal;
+  error?: string;
+}
+
+export type PriceAction =
+  | "undercut" // we're pricier or level, and can go 25¢ under them and keep our margin floor
+  | "raise" // we're well under them: raise and still be cheaper
+  | "hold" // already a bit cheaper; leave it
+  | "cant_undercut"; // going under them would break our margin floor: compete on quality instead
+
+/** Computed pricing advice for one product. Every number is exact; Nonna only rewords `reason`. */
+export interface PriceAdvice {
+  productId: string;
+  name: string;
+  competitorId: string;
+  competitorName: string;
+  theirItemName: string;
+  theirPriceCents: number;
+  ourPriceCents: number;
+  unitCostCents: number; // ingredient cost at today's supplier prices
+  marginPctNow: number;
+  floorPriceCents: number; // lowest price that keeps the margin floor
+  action: PriceAction;
+  suggestedPriceCents?: number; // for undercut / raise
+  marginPctAtSuggested?: number;
+  reason: string; // factual, e.g. "The Bakery: $7.95. Ours: $7.50 (72.8% margin). Floor at 60%: $5.10."
+}
+
 // ---------- Sales ----------
 
 export type PaymentMethod = "card" | "cash";
@@ -182,6 +256,32 @@ export interface RecordSaleInput {
   paymentMethod: PaymentMethod;
   source?: Sale["source"];
   at?: string; // simulator may backdate; defaults to clock.now()
+}
+
+// ---------- Make-list (prep tasks) ----------
+
+/** One line on the make-list: the morning shelf batch, or an order the shelf couldn't fill. */
+export interface PrepTask {
+  id: string;
+  day: string; // local YYYY-MM-DD
+  productId: string;
+  name: string;
+  emoji: string;
+  qty: number;
+  kind: "morning" | "order";
+  note: string; // e.g. "for the shelf (avg of the last 3 Saturdays: 70, 72, 68)" or "counter order at 11:42"
+  dueAt?: string;
+  saleId?: string;
+  createdAt: string;
+  doneAt?: string;
+}
+
+/** Body of POST /api/sales/todo: an order added by hand (phone, university event, …). */
+export interface AddOrderInput {
+  productId: string;
+  qty: number;
+  note?: string;
+  dueAt?: string;
 }
 
 // ---------- Analytics ----------
@@ -245,7 +345,8 @@ export type NotificationKind =
   | "gentle_truth"
   | "daily_summary"
   | "card_declined"
-  | "price_changed";
+  | "price_changed"
+  | "competitor_prices";
 
 export type Channel = "speaker" | "dashboard" | "messenger";
 
@@ -273,6 +374,8 @@ export type VoiceAction =
   | { type: "mark_received"; reorderId: string }
   | { type: "log_waste"; ingredientId: string; qty: number }
   | { type: "snooze"; notificationId: string; minutes: number }
+  /** "Should I drop the Fall Parfait to $7.70?" → yes */
+  | { type: "set_price"; productId: string; priceCents: number }
   /** "Gerald's card is maxed, raise it to $700 and order?" → yes */
   | { type: "raise_card_limit"; cardId: string; newLimitCents: number; thenApproveReorderId?: string }
   | { type: "none" };
@@ -331,6 +434,10 @@ export interface EventMap {
     suggestedLimitCents?: number; // only for over_limit
   };
   "price.changed": { change: PriceChange };
+  /** New competitor prices came in (photo / voice / manual). `advice` holds only actionable items (undercut / raise). */
+  "competitor.prices": { competitorId: string; prices: CompetitorPrice[]; advice: PriceAdvice[] };
+  /** A new competitor was discovered nearby (OSM / Google / mock). */
+  "competitor.discovered": { competitor: Competitor };
   notify: { notification: NonnaNotification };
   "clock.changed": { now: string };
 }
