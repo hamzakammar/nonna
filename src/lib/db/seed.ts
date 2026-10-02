@@ -71,6 +71,22 @@ const BAKERY_MENU: [string, number, string | null][] = [
   ["Oat Latte", 495, "prd_latte"], // ours $4.75, 20¢ under → hold
 ];
 
+// Two weeks of supplier card charges, so Nonna's Notebook has a story on demo day.
+// [card, merchant, cents, days ago, memo]. Kept well under each card's weekly limit.
+const PAST_CHARGES: [string, string, number, number, string][] = [
+  ["card_gerald", "Gerald's Dairy", 2800, 13, "Weekly order: 4000ml Heavy cream"],
+  ["card_maple", "Maple Hill Creamery", 1280, 12, "Weekly order: 8000ml Whole milk"],
+  ["card_bulk", "BulkMart Wholesale", 6150, 11, "Weekly order: 10000g Flour"],
+  ["card_rosa", "Rosa's Orchard", 2400, 10, "Weekly order: 6000g Apples"],
+  ["card_dave", "Dave's Pumpkin Patch", 1500, 9, "Weekly order: 3000g Pumpkin purée"],
+  ["card_bean", "Bean There Roasters", 7500, 8, "Weekly order: 2500g Espresso beans"],
+  ["card_gerald", "Gerald's Dairy", 3000, 6, "Weekly order: 5000g Greek yogurt"],
+  ["card_gerald", "Gerald's Dairy", 2800, 4, "Weekly order: 4000ml Heavy cream"],
+  ["card_rosa", "Rosa's Orchard", 4500, 3, "Weekly order: 3000g Mixed berries"],
+  ["card_gerald", "Gerald's Dairy", 3200, 2, "Weekly order: 2000g Mascarpone"],
+  ["card_maple", "Maple Hill Creamery", 1280, 1, "Weekly order: 8000ml Whole milk"],
+];
+
 const PRODUCTS = [
   { id: "prd_fall_parfait", name: "Fall Parfait", emoji: "🍂", price_cents: 750, category: "parfait" },
   { id: "prd_berry_parfait", name: "Berry Parfait", emoji: "🍓", price_cents: 700, category: "parfait" },
@@ -129,6 +145,12 @@ export function seed() {
     for (const c of CARDS) {
       insert("ramp_cards", { id: c.id, display_name: c.display_name, last_four: c.last_four, spend_limit_cents: c.spend_limit_cents, state: "ACTIVE" });
     }
+    PAST_CHARGES.forEach(([card_id, merchant_name, amount_cents, daysAgo, memo], n) => {
+      insert("ramp_transactions", {
+        id: `txn_seed_${n}`, card_id, merchant_name, amount_cents, memo,
+        user_transaction_time: new Date(t - daysAgo * DAY + 9 * HOUR).toISOString(),
+      });
+    });
     for (const s of SUPPLIERS) {
       insert("suppliers", { ...s, ramp_card_id: CARDS.find((c) => c.supplier === s.id)?.id ?? null });
     }

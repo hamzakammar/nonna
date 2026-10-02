@@ -20,6 +20,9 @@ async function main() {
 
   seed();
   inv.registerInventoryListeners();
+  // The seed includes two weeks of past card charges, so assert spend relative to where each card started.
+  const startSpend = Object.fromEntries(payments.listCards().map((c) => [c.id, payments.weeklySpendCents(c.id)]));
+  const spentSinceStart = (cardId: string) => payments.weeklySpendCents(cardId) - startSpend[cardId];
   const events: string[] = [];
   for (const e of ["stock.low", "stock.expiring", "stock.expired", "reorder.proposed", "reorder.placed", "reorder.received"] as const) {
     bus.on(e, () => void events.push(e));
@@ -57,7 +60,7 @@ async function main() {
   ok(`cream $${ro.costCents / 100} is over the $25 allowance → proposed (Nonna asks), idempotent`);
   const placed = inv.approveReorder(ro.id);
   assert.equal(placed.status, "placed"); assert.ok(placed.rampTransactionId);
-  assert.equal(payments.weeklySpendCents("card_gerald"), 2800);
+  assert.equal(spentSinceStart("card_gerald"), 2800);
   assert.equal(inv.approveReorder(ro.id).rampTransactionId, placed.rampTransactionId);
   ok("approve charges Gerald's card once ($28), idempotent");
 
@@ -78,9 +81,13 @@ async function main() {
   const apples = inv.listReorders().find((r) => r.ingredientId === "ing_apples")!;
   assert.equal(apples.status, "placed"); assert.equal(apples.autoApproved, true); assert.equal(apples.costCents, 2400);
   assert.equal(count("reorder.proposed"), 1, "routine reorder doesn't ask");
-  assert.equal(payments.weeklySpendCents("card_rosa"), 2400);
+  assert.equal(spentSinceStart("card_rosa"), 2400);
   assert.equal(inv.autopilotStatus().spentCents, 2400);
   ok("apples ran out → routine $24 restock placed on autopilot, no question asked");
+  const { notebookEntries } = await import("../src/lib/ramp-mock/notebook");
+  const autoLine = notebookEntries().find((e) => e.autopilot)!;
+  assert.equal(autoLine.line, "$24.00 for apples. I did this one myself, under my allowance. You're welcome.");
+  ok(`notebook: "${autoLine.line}"`);
   process.env.AUTOPILOT_WEEKLY_BUDGET_CENTS = "3000";
   inv.logWaste("ing_pumpkin", 1600); // 2520g → 920g, below the 1000g reorder point
   const pumpkin = inv.listReorders().find((r) => r.ingredientId === "ing_pumpkin")!;
@@ -88,7 +95,7 @@ async function main() {
   ok("$15 pumpkin would exceed the weekly autopilot budget → asks instead");
   delete process.env.AUTOPILOT_WEEKLY_BUDGET_CENTS;
   inv.cancelReorder(apples.id);
-  assert.equal(payments.weeklySpendCents("card_rosa"), 0); assert.equal(inv.autopilotStatus().spentCents, 0);
+  assert.equal(spentSinceStart("card_rosa"), 0); assert.equal(inv.autopilotStatus().spentCents, 0);
   ok("'cancel' undoes an autopilot order: refunded, budget restored");
 
   console.log("mock Ramp limits");
@@ -104,7 +111,7 @@ async function main() {
   console.log("cancel + refund");
   const flour = inv.orderNow("ing_flour", 1000);
   inv.cancelReorder(flour.id);
-  assert.equal(payments.weeklySpendCents("card_bulk"), 0);
+  assert.equal(spentSinceStart("card_bulk"), 0);
   ok("cancelling a placed reorder refunds the card");
 
   console.log("expiry + deliveries (demo clock)");
