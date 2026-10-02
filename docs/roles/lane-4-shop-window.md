@@ -30,6 +30,8 @@
 - [ ] `/demo` story buttons: **"Jump to Saturday 11:00"**, **"+1 day (watch the berries die)"**, **"Reset world"** (needs a reset endpoint: coordinate with Lane 1 to re-seed).
 - [ ] Mock Ramp panel: supplier cards with limit bars + the latest transactions. It's subtle, one panel.
 - [ ] Inventory table: **days of cover** column (`daysOfCover`, `runsOutAt`) once the simulator has run. Reorder rows show `note` and an "autopilot" badge.
+- [ ] Price Watch competitor list: how each was found (OSM / Google / mock), last check, status badge (ok / unchanged / robots_blocked / no_menu_found / no_website). A "Check now" button → `POST /api/pricewatch/refresh`. A `/demo` button **"The Bakery runs a sale 🏷️"** → `POST /api/pricewatch/refresh {"mockVariant":"sale"}`.
+- [ ] **Price Watch panel**: `GET /api/pricewatch` → per product: ours vs theirs, margin, verdict badge (undercut / raise / hold / can't undercut), and an "Apply $7.00" button → `POST /api/pricewatch/apply`. Add a "📷 Snap their menu" upload → `POST /api/pricewatch/photo` (show the 503 message nicely if there's no API key).
 - [ ] `/demo` **"Trade war 💥"** button: `POST /api/suppliers/price {supplierId:"sup_gerald", ingredientId:"ing_cream", unitCostCents:0.95}`. Show the returned `PriceChange` (margin before → after, $/week) as a big card on the dashboard. `GET /api/suppliers` for a supplier comparison table (local badge, current pick highlighted).
 - [ ] **Own `docs/DEMO.md`**: rehearse it, time it, and keep a backup screen recording.
 

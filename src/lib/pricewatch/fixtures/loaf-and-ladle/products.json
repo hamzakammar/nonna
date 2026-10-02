@@ -1,0 +1,7 @@
+{"products":[
+  {"title":"Pumpkin Pie Parfait","variants":[{"price":"6.75","available":true}]},
+  {"title":"Apple Crumble Slice","variants":[{"price":"4.95","available":true}]},
+  {"title":"Sourdough Loaf","variants":[{"price":"8.00","available":true}]},
+  {"title":"Gift Card","variants":[{"price":"25.00","available":true}]},
+  {"title":"Croissant","variants":[{"price":"3.50","available":false},{"price":"3.75","available":true}]}
+]}

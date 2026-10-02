@@ -100,7 +100,7 @@ Nonna is the warm, slightly dramatic Italian-grandmother voice of the shop. She 
 3. **Time = `now()` from `@/lib/clock`.** Never `new Date()` or `Date.now()` for business logic.
 4. **Money = integer cents. Quantities = base units** (g / ml / pcs).
 5. **Cross-lane side effects go through the event bus** (`@/lib/events`). Inventory doesn't call notify; it emits `stock.low` and notify listens.
-6. **Server-only code** (`@/lib/db`, `inventory`, `sales`, `analytics`, `notify`, `voice/intents`) is never imported from `"use client"` files. Client code talks to `/api/*`.
+6. **Server-only code** (`@/lib/db`, `inventory`, `pricewatch`, `sales`, `analytics`, `notify`, `voice/intents`) is never imported from `"use client"` files. Client code talks to `/api/*`.
 7. **Unbuilt = `todo("laneN …")`.** Routes turn that into a 501 so the UI can show "coming soon" instead of crashing.
 8. **No new dependency without a one-line note in chat.** No native modules (we picked `node:sqlite` for this reason).
 9. **Small commits, merge to `main` often** (at least every 2 hours). Run `npm run typecheck && npm run lint` before pushing.

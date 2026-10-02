@@ -25,7 +25,7 @@ You are helping one of four people build **Nonna.exe** at a hackathon. Four lane
 - **Money:** integer cents. **Quantities:** base units (g / ml / pcs).
 - **The LLM never produces numbers** that reach Grandma. Code computes, Nonna phrases.
 - **Must run with zero API keys.** Every AI feature has a deterministic fallback.
-- Server-only modules (`@/lib/db`, `inventory`, `sales`, `analytics`, `notify`, `voice/intents`) are never imported from `"use client"` files.
+- Server-only modules (`@/lib/db`, `inventory`, `pricewatch`, `sales`, `analytics`, `notify`, `voice/intents`) are never imported from `"use client"` files.
 - Unbuilt functions call `todo("laneN …")` and routes map that to 501. Keep that pattern, and handle 501s gracefully in UI.
 - No new dependencies without telling your human. No native modules.
 - Before saying a task is done: `npm run typecheck && npm run lint`, and prove the role doc's "Done when" criterion.
