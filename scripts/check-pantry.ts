@@ -23,6 +23,7 @@ async function main() {
   // The seed includes two weeks of past card charges, so assert spend relative to where each card started.
   const startSpend = Object.fromEntries(payments.listCards().map((c) => [c.id, payments.weeklySpendCents(c.id)]));
   const spentSinceStart = (cardId: string) => payments.weeklySpendCents(cardId) - startSpend[cardId];
+  const startAllowance = inv.autopilotStatus().spentCents; // seeded past autopilot orders
   const events: string[] = [];
   for (const e of ["stock.low", "stock.expiring", "stock.expired", "reorder.proposed", "reorder.placed", "reorder.received"] as const) {
     bus.on(e, () => void events.push(e));
@@ -82,20 +83,20 @@ async function main() {
   assert.equal(apples.status, "placed"); assert.equal(apples.autoApproved, true); assert.equal(apples.costCents, 2400);
   assert.equal(count("reorder.proposed"), 1, "routine reorder doesn't ask");
   assert.equal(spentSinceStart("card_rosa"), 2400);
-  assert.equal(inv.autopilotStatus().spentCents, 2400);
+  assert.equal(inv.autopilotStatus().spentCents - startAllowance, 2400);
   ok("apples ran out → routine $24 restock placed on autopilot, no question asked");
   const { notebookEntries } = await import("../src/lib/ramp-mock/notebook");
   const autoLine = notebookEntries().find((e) => e.autopilot)!;
   assert.equal(autoLine.line, "$24.00 for apples. I did this one myself, under my allowance. You're welcome.");
   ok(`notebook: "${autoLine.line}"`);
-  process.env.AUTOPILOT_WEEKLY_BUDGET_CENTS = "3000";
+  process.env.AUTOPILOT_WEEKLY_BUDGET_CENTS = String(startAllowance + 3000); // $24 apples used, $6 left
   inv.logWaste("ing_pumpkin", 1600); // 2520g → 920g, below the 1000g reorder point
   const pumpkin = inv.listReorders().find((r) => r.ingredientId === "ing_pumpkin")!;
   assert.equal(pumpkin.status, "proposed"); assert.equal(pumpkin.costCents, 1500);
   ok("$15 pumpkin would exceed the weekly autopilot budget → asks instead");
   delete process.env.AUTOPILOT_WEEKLY_BUDGET_CENTS;
   inv.cancelReorder(apples.id);
-  assert.equal(spentSinceStart("card_rosa"), 0); assert.equal(inv.autopilotStatus().spentCents, 0);
+  assert.equal(spentSinceStart("card_rosa"), 0); assert.equal(inv.autopilotStatus().spentCents - startAllowance, 0);
   ok("'cancel' undoes an autopilot order: refunded, budget restored");
 
   console.log("mock Ramp limits");
