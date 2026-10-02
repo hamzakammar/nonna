@@ -7,14 +7,14 @@
  *      "make N for this customer". Phone or university orders can also be added by hand.
  * Drinks are made to order at the machine, so they never go on the list.
  *
- * Shelf left = morning batch − units sold today that came off the shelf.
- * (A unit made for an order goes straight to the customer, never onto the shelf.)
+ * Shelf left = morning batch + yesterday's leftovers − units sold today that came off the shelf.
+ * It lives in analytics (shelfLeft) because prepForecast subtracts the same leftovers, so they always agree.
  */
 import type { AddOrderInput, PrepTask, Sale } from "@/lib/types";
 import { db, id, tx } from "@/lib/db";
 import { bus } from "@/lib/events";
 import { now, nowIso } from "@/lib/clock";
-import { prepForecast } from "@/lib/analytics";
+import { prepForecast, shelfLeft } from "@/lib/analytics";
 
 const OPEN_HOUR = 7;
 
@@ -67,23 +67,6 @@ export function ensureMorningBatch(day = dayKey(now())): void {
   });
 }
 
-/** Units of `productId` the shelf still has, not counting sale `excludeSaleId`. */
-function shelfLeft(productId: string, day: string, excludeSaleId: string): number {
-  const { start, end } = dayBounds(day);
-  const q = (sql: string, ...args: (string | number)[]) => (db().prepare(sql).get(...args) as { n: number }).n;
-  const morning = q("SELECT COALESCE(SUM(qty), 0) AS n FROM prep_tasks WHERE day = ? AND product_id = ? AND kind = 'morning'", day, productId);
-  const sold = q(
-    `SELECT COALESCE(SUM(si.qty), 0) AS n FROM sale_items si JOIN sales s ON s.id = si.sale_id
-      WHERE si.product_id = ? AND s.at >= ? AND s.at < ? AND s.id != ?`,
-    productId, start.toISOString(), end.toISOString(), excludeSaleId,
-  );
-  const madeToOrder = q(
-    "SELECT COALESCE(SUM(qty), 0) AS n FROM prep_tasks WHERE day = ? AND product_id = ? AND kind = 'order' AND sale_id IS NOT NULL",
-    day, productId,
-  );
-  return Math.max(0, morning - (sold - madeToOrder));
-}
-
 /** A sale came in: whatever the shelf can't cover goes on the list. Returns the tasks it added. */
 export function addShortfalls(sale: Sale): PrepTask[] {
   const at = new Date(sale.at);
@@ -92,7 +75,7 @@ export function addShortfalls(sale: Sale): PrepTask[] {
   const added: string[] = [];
   for (const item of sale.items) {
     if (isDrink(item.productId)) continue;
-    const short = item.qty - shelfLeft(item.productId, day, sale.id);
+    const short = item.qty - (shelfLeft(item.productId, day, sale.id) ?? 0);
     if (short <= 0) continue;
     const taskId = id("task");
     db()
