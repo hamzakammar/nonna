@@ -148,6 +148,12 @@ const CARDS = [
 export function seed() {
   const t = now().getTime();
   const iso = (ms: number) => new Date(ms).toISOString();
+  /** 9:00 local time, N days ago: when suppliers bill. */
+  const nineAm = (daysAgo: number) => {
+    const d = new Date(t - daysAgo * DAY);
+    d.setHours(9, 0, 0, 0);
+    return d.toISOString();
+  };
 
   tx(() => {
     for (const c of CARDS) {
@@ -156,7 +162,7 @@ export function seed() {
     PAST_CHARGES.forEach(([card_id, merchant_name, amount_cents, daysAgo, memo], n) => {
       insert("ramp_transactions", {
         id: `txn_seed_${n}`, card_id, merchant_name, amount_cents, memo,
-        user_transaction_time: new Date(t - daysAgo * DAY + 9 * HOUR).toISOString(),
+        user_transaction_time: nineAm(daysAgo),
       });
     });
     for (const s of SUPPLIERS) {
@@ -172,7 +178,7 @@ export function seed() {
     for (const p of PRODUCTS) insert("products", { ...p, active: 1 });
     for (const [n, ingredient_id, supplier_id, qty] of PAST_AUTOPILOT) {
       const [, , amount_cents, daysAgo] = PAST_CHARGES[n];
-      const at = new Date(t - daysAgo * DAY + 9 * HOUR).toISOString();
+      const at = nineAm(daysAgo);
       insert("reorders", {
         id: `ro_seed_${n}`, ingredient_id, supplier_id, qty, cost_cents: amount_cents, reason: "low_stock",
         status: "received", created_at: at, placed_at: at, received_at: at, ramp_transaction_id: `txn_seed_${n}`, auto_approved: 1,
