@@ -36,7 +36,7 @@ One Next.js app, one SQLite file, one in-process event bus. Simple enough to run
 | `src/lib/types.ts` | **Everyone** (contract) | Shared domain types + `EventMap` |
 | `src/lib/clock.ts`, `events.ts`, `db/index.ts`, `api.ts`, `boot.ts` | Everyone (foundation, rarely changes) | Demo clock, event bus, DB handle, route helper, listener wiring |
 | `src/lib/db/schema.ts`, `db/seed.ts` | Lane 1 | Tables + baseline data |
-| `src/lib/inventory/`, `src/lib/ramp-mock/` | Lane 1, Pantry | Stock, FIFO, expiry, reorders, mock payments |
+| `src/lib/inventory/`, `src/lib/ramp-mock/`, `src/lib/pricewatch/` | Lane 1, Pantry | Stock, FIFO, expiry, reorders, sourcing, mock payments, competitor prices |
 | `src/lib/voice/`, `src/lib/notify/` | Lane 2, Voice | Wake word, STT, intents, persona, TTS, notification queue, Messenger |
 | `src/lib/sales/`, `src/lib/analytics/`, `scripts/simulate.ts` | Lane 3, Ledger | Sales intake, simulator, performance, busyness, forecast, Gentle Truth |
 | `src/app/**/page.tsx`, `src/components/` | Lane 4, Shop Window | Kiosk, dashboard, till, demo control, all visuals |
@@ -54,6 +54,12 @@ One Next.js app, one SQLite file, one in-process event bus. Simple enough to run
 | `GET /api/suppliers` | 1 | suppliers with `offers: {ingredientId, ingredientName, unitCostCents, isCurrent}[]` |
 | `POST /api/suppliers/price` `{supplierId, ingredientId, unitCostCents}` | 1 | `PriceChange` (the trade-war button) |
 | `POST /api/ramp/limit` `{cardId, newLimitCents, thenApproveReorderId?}` | 1 | `{cardId, spendLimitCents, reorder?}` |
+| `GET /api/pricewatch` | 1 | `{competitors, prices: CompetitorPrice[], advice: PriceAdvice[], refresh: {provider, lastRefreshAt, googleUsage}}` |
+| `POST /api/pricewatch/refresh` `{provider?, mockVariant?}` | 1 | `{provider, at, results: CompetitorRefresh[]}` (also runs daily by itself) |
+| `GET /mock/<slug>/<path>` | 1 | the mock competitor websites (fixtures), for viewing |
+| `POST /api/pricewatch/prices` `{competitorName?, items:[{itemName, priceCents}], source?}` | 1 | `{prices, advice}` |
+| `POST /api/pricewatch/photo` (multipart `photo`, `competitorName?`) | 1 | `{prices, advice}` · 503 without Anthropic credentials |
+| `POST /api/pricewatch/apply` `{productId, priceCents}` | 1 | `Product & {marginPct}` · 400 below the margin floor |
 | `GET /api/ramp` | 1 | `{cards: (RampCard & {weeklySpendCents})[], transactions: RampTransaction[], autopilot: AutopilotStatus}` |
 | `GET /api/analytics/products\|busyness\|rush\|prep\|truths\|waste?days=N` | 3 | see `src/lib/analytics` |
 | `POST /api/voice` `{transcript, pendingNotificationId?}` | 2 | `VoiceResponse` |
@@ -72,6 +78,8 @@ Unbuilt functions return **501** `{error:"Not implemented yet: laneN …"}`. The
 | `reorder.proposed` / `placed` / `received` | Lane 1 | Lane 2 (`placed` with `autoApproved` = announce + offer undo) |
 | `card.declined` | Lane 1 | Lane 2 (offer to raise the limit) |
 | `price.changed` | Lane 1 | Lane 2 (announce + weekly $ impact), Lane 3 (margins already updated in `ingredients`) |
+| `competitor.prices` | Lane 1 | Lane 2 (offer `set_price`) |
+| `competitor.discovered` | Lane 1 | Lane 2 (dashboard note) |
 | `rush.changed` | Lane 3 | Lane 2 (hold or flush the queue), Lane 4 via SSE |
 | `insight.ready` | Lane 3 | Lane 2 |
 | `notify` | Lane 2 | (internal) |
