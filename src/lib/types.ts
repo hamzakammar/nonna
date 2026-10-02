@@ -162,7 +162,16 @@ export interface WasteEvent {
 export interface Competitor {
   id: string;
   name: string; // "The Bakery"
+  /** How we found them. "manual" = someone typed the name. */
+  source: "manual" | "mock" | "osm" | "google";
+  /** Stable id in that source: "osm:node/123", "google:ChIJ…" (place ids may be stored), "mock:the-bakery". */
+  externalId?: string;
+  website?: string; // only stored once we've fetched it ourselves
+  lastCheckedAt?: string;
+  lastStatus?: CompetitorCheckStatus;
 }
+
+export type CompetitorCheckStatus = "ok" | "no_website" | "robots_blocked" | "no_menu_found" | "unchanged" | "error";
 
 /** One observed price on a competitor's menu, matched (if we can) to one of our products. */
 export interface CompetitorPrice {
@@ -172,7 +181,30 @@ export interface CompetitorPrice {
   priceCents: number;
   productId?: string; // our closest product, if any
   observedAt: string;
-  source: "mock" | "photo" | "voice" | "manual";
+  source: "mock" | "photo" | "voice" | "manual" | "website";
+}
+
+/** What reviews say about a competitor's prices. Used live and never stored (Google's caching rules). */
+export interface ReviewPriceSignal {
+  reviewsRead: number;
+  saysPricey: number; // "overpriced", "expensive", "pricey"…
+  saysGoodValue: number; // "cheap", "good value", "worth it"…
+  /** Prices quoted in reviews, e.g. "$9 for a parfait". A hint only, never recorded as a menu price. */
+  mentions: { snippet: string; priceCents: number }[];
+}
+
+/** Outcome of one automatic refresh for one competitor. */
+export interface CompetitorRefresh {
+  competitorId: string;
+  name: string;
+  source: Competitor["source"];
+  status: CompetitorCheckStatus;
+  menuUrl?: string;
+  method?: "shopify" | "woocommerce" | "json-ld" | "text" | "claude"; // how the menu was read
+  itemsFound: number;
+  changed: CompetitorPrice[]; // new or different prices only
+  reviews?: ReviewPriceSignal;
+  error?: string;
 }
 
 export type PriceAction =
@@ -377,6 +409,8 @@ export interface EventMap {
   "price.changed": { change: PriceChange };
   /** New competitor prices came in (photo / voice / manual). `advice` holds only actionable items (undercut / raise). */
   "competitor.prices": { competitorId: string; prices: CompetitorPrice[]; advice: PriceAdvice[] };
+  /** A new competitor was discovered nearby (OSM / Google / mock). */
+  "competitor.discovered": { competitor: Competitor };
   notify: { notification: NonnaNotification };
   "clock.changed": { now: string };
 }

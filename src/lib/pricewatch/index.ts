@@ -1,9 +1,11 @@
 /**
  * LANE 1: PRICE WATCH. What the competition charges, and what to do about it.
  *
- * Competitor prices come from: the seeded mock feed (The Bakery), a menu photo
- * read by Claude (./vision.ts), or voice/manual entry. There's no scraping: Uber
- * Eats has no API for other stores' menus, and scraping breaks their terms.
+ * Competitor prices arrive AUTOMATICALLY via ./refresh.ts: nearby bakeries are
+ * found (OpenStreetMap / Google Places free tier / mock), and their OWN websites'
+ * menus are read daily. Changes only. Fallbacks: a menu photo read by Claude
+ * (./vision.ts) or voice/manual entry. Google Maps / Uber Eats pages are never
+ * scraped (against their terms).
  *
  * The advice is deterministic code: our ingredient cost (from today's supplier
  * prices) sets a margin floor, and we never suggest going below it. Nonna only
@@ -40,16 +42,27 @@ const toProduct = (r: R): Product => ({
   active: Number(r.active) === 1,
 });
 
+export const toCompetitor = (r: R): Competitor => ({
+  id: String(r.id),
+  name: String(r.name),
+  source: (r.source as Competitor["source"]) ?? "manual",
+  externalId: r.external_id ? String(r.external_id) : undefined,
+  website: r.website ? String(r.website) : undefined,
+  lastCheckedAt: r.last_checked_at ? String(r.last_checked_at) : undefined,
+  lastStatus: r.last_status ? (r.last_status as Competitor["lastStatus"]) : undefined,
+});
+
 export function listCompetitors(): Competitor[] {
-  return db().prepare("SELECT * FROM competitors ORDER BY name").all().map((r) => ({ id: String(r.id), name: String(r.name) }));
+  return db().prepare("SELECT * FROM competitors ORDER BY name").all().map(toCompetitor);
 }
 
+/** Manual fallback ("Nonna, The Bakery's parfait is $7.25"). Discovery normally adds competitors itself. */
 export function addCompetitor(name: string): Competitor {
   const existing = db().prepare("SELECT * FROM competitors WHERE lower(name) = lower(?)").get(name.trim());
-  if (existing) return { id: String(existing.id), name: String(existing.name) };
-  const c = { id: id("comp"), name: name.trim() };
-  db().prepare("INSERT INTO competitors (id, name) VALUES (?, ?)").run(c.id, c.name);
-  return c;
+  if (existing) return toCompetitor(existing);
+  const c = { id: id("comp"), name: name.trim(), source: "manual" };
+  db().prepare("INSERT INTO competitors (id, name, source) VALUES (?, ?, ?)").run(c.id, c.name, c.source);
+  return toCompetitor(c);
 }
 
 /** The most recent observation of each item on each competitor's menu. */

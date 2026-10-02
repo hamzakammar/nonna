@@ -28,7 +28,7 @@ export class MenuReaderUnavailableError extends Error {}
  * Is any Anthropic credential source configured? With none, the SDK throws a plain Error
  * at request time (no typed class to catch), so check up front for a clean 503.
  */
-function hasCredentials(): boolean {
+export function hasCredentials(): boolean {
   const env = process.env;
   if (env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN || env.ANTHROPIC_PROFILE || env.ANTHROPIC_IDENTITY_TOKEN || env.ANTHROPIC_IDENTITY_TOKEN_FILE) return true;
   return existsSync(path.join(os.homedir(), ".config", "anthropic")); // `ant auth login` profiles
@@ -95,4 +95,26 @@ export async function readMenuPhoto(image: { base64: string; mediaType: MenuMedi
   return parsed.items
     .filter((i) => i.price_cents > 0 && i.item_name.trim())
     .map((i) => ({ itemName: i.item_name.trim(), priceCents: i.price_cents, productId: i.matches_product_id }));
+}
+
+/**
+ * Last-resort menu reading for websites with no structured data and no
+ * "Item … $price" lines. Only called when credentials exist (costs money).
+ */
+export async function readMenuText(text: string): Promise<{ itemName: string; priceCents: number }[]> {
+  if (!hasCredentials()) return [];
+  const Schema = z.object({ items: z.array(z.object({ item_name: z.string(), price_cents: z.number().int() })) });
+  const response = await new Anthropic().beta.messages.parse({
+    model: MODEL,
+    max_tokens: 16000,
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    output_config: { effort: "low", format: betaZodOutputFormat(Schema) },
+    system: "Extract menu items with clearly stated prices from this bakery website text. price_cents is an integer (e.g. $7.25 → 725). Skip anything without a clear price. Never guess.",
+    messages: [{ role: "user", content: text }],
+  });
+  if (response.stop_reason !== "end_turn" || !response.parsed_output) return [];
+  return response.parsed_output.items
+    .filter((i) => i.price_cents > 0 && i.item_name.trim())
+    .map((i) => ({ itemName: i.item_name.trim(), priceCents: i.price_cents }));
 }

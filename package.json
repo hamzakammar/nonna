@@ -10,7 +10,7 @@
     "db:reset": "tsx scripts/db-reset.ts",
     "simulate": "tsx scripts/simulate.ts",
     "typecheck": "next typegen && tsc --noEmit",
-    "check:pantry": "tsx scripts/check-pantry.ts && tsx scripts/check-pantry-stretch.ts && tsx scripts/check-pricewatch.ts"
+    "check:pantry": "tsx scripts/check-pantry.ts && tsx scripts/check-pantry-stretch.ts && tsx scripts/check-pricewatch.ts && tsx scripts/check-pricewatch-auto.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

@@ -54,7 +54,9 @@ One Next.js app, one SQLite file, one in-process event bus. Simple enough to run
 | `GET /api/suppliers` | 1 | suppliers with `offers: {ingredientId, ingredientName, unitCostCents, isCurrent}[]` |
 | `POST /api/suppliers/price` `{supplierId, ingredientId, unitCostCents}` | 1 | `PriceChange` (the trade-war button) |
 | `POST /api/ramp/limit` `{cardId, newLimitCents, thenApproveReorderId?}` | 1 | `{cardId, spendLimitCents, reorder?}` |
-| `GET /api/pricewatch` | 1 | `{competitors, prices: CompetitorPrice[], advice: PriceAdvice[]}` |
+| `GET /api/pricewatch` | 1 | `{competitors, prices: CompetitorPrice[], advice: PriceAdvice[], refresh: {provider, lastRefreshAt, googleUsage}}` |
+| `POST /api/pricewatch/refresh` `{provider?, mockVariant?}` | 1 | `{provider, at, results: CompetitorRefresh[]}` (also runs daily by itself) |
+| `GET /mock/<slug>/<path>` | 1 | the mock competitor websites (fixtures), for viewing |
 | `POST /api/pricewatch/prices` `{competitorName?, items:[{itemName, priceCents}], source?}` | 1 | `{prices, advice}` |
 | `POST /api/pricewatch/photo` (multipart `photo`, `competitorName?`) | 1 | `{prices, advice}` · 503 without Anthropic credentials |
 | `POST /api/pricewatch/apply` `{productId, priceCents}` | 1 | `Product & {marginPct}` · 400 below the margin floor |
@@ -77,6 +79,7 @@ Unbuilt functions return **501** `{error:"Not implemented yet: laneN …"}`. The
 | `card.declined` | Lane 1 | Lane 2 (offer to raise the limit) |
 | `price.changed` | Lane 1 | Lane 2 (announce + weekly $ impact), Lane 3 (margins already updated in `ingredients`) |
 | `competitor.prices` | Lane 1 | Lane 2 (offer `set_price`) |
+| `competitor.discovered` | Lane 1 | Lane 2 (dashboard note) |
 | `rush.changed` | Lane 3 | Lane 2 (hold or flush the queue), Lane 4 via SSE |
 | `insight.ready` | Lane 3 | Lane 2 |
 | `notify` | Lane 2 | (internal) |

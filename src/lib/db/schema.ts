@@ -53,8 +53,21 @@ CREATE TABLE IF NOT EXISTS supplier_offers (
 
 -- Price Watch. written by: pantry. read by: voice, shop window
 CREATE TABLE IF NOT EXISTS competitors (
-  id    TEXT PRIMARY KEY,
-  name  TEXT NOT NULL
+  id               TEXT PRIMARY KEY,
+  name             TEXT NOT NULL,
+  source           TEXT NOT NULL DEFAULT 'manual',
+  external_id      TEXT UNIQUE,
+  website          TEXT,
+  last_checked_at  TEXT,
+  last_status      TEXT
+);
+
+-- Paid-API usage per calendar month, so the free tier is never exceeded (Price Watch's Google provider).
+CREATE TABLE IF NOT EXISTS api_usage (
+  month  TEXT NOT NULL,  -- "2026-10"
+  sku    TEXT NOT NULL,
+  count  INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (month, sku)
 );
 
 CREATE TABLE IF NOT EXISTS competitor_prices (

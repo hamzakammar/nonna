@@ -154,7 +154,7 @@ export function seed() {
     });
   });
   tx(() => {
-    insert("competitors", { id: "comp_bakery", name: "The Bakery" });
+    insert("competitors", { id: "comp_bakery", name: "The Bakery", source: "mock", external_id: "mock:the-bakery" });
     BAKERY_MENU.forEach(([item_name, price_cents, product_id], n) => {
       insert("competitor_prices", {
         id: `cp_seed_${n}`, competitor_id: "comp_bakery", item_name, price_cents, product_id,

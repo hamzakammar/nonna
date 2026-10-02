@@ -50,8 +50,20 @@ P0 + P1 are done. Prove it with `npm run check:pantry` (runs against a throwaway
 - **Shop Window (Lane 4):** `GET /api/ramp` returns cards with `weeklySpendCents` + the latest 20 transactions. `POST /api/reorders/:id/approve` returns **402** `{declined, cardId}` when the card declines. `GET /api/ramp` also returns `autopilot: {maxOrderCents, weeklyBudgetCents, spentCents, remainingCents}`. Show it as "Nonna's allowance: $24 of $100 used this week", and badge autopilot reorders on the reorders list.
 - Seeded berries are "expiring soon" at start. `+1 day` on the demo clock expires them (≈$33 waste) and proposes a reorder.
 
-## Price Watch (competitor prices)
-Uber Eats has no API for other stores' menus (theirs only manages your *own* store, behind partner approval), and scraping it breaks their terms. So competitor prices come from:
+## Price Watch (competitor prices), automatic
+Nobody types competitor prices. Once a day on the demo clock (`src/lib/pricewatch/refresh.ts`, or `POST /api/pricewatch/refresh`):
+1. **Discover** nearby bakeries (`PRICEWATCH_DISCOVERY`):
+   - `mock` (default): `fixtures/places.json`, offline
+   - `osm`: OpenStreetMap Overpass. **Free, no key, no card.** Live around Uptown Waterloo it finds 11 bakeries, 9 with websites.
+   - `google`: Places Text Search. One call returns 20 places with website + reviews. A **hard monthly cap** (`GOOGLE_PLACES_MONTHLY_CAP`, default 900) keeps it inside Google's free quota; past the cap it refuses *before* calling. Google still requires a billing account on file.
+2. **Read their own website**, cheapest first: Shopify `/products.json` → WooCommerce Store API → JSON-LD (Menu/Product) → "Item … $price" text → Claude (only with a key). Honest User-Agent, **robots.txt respected**, 10s timeout. *Live: 3 of 9 real sites read automatically (241 prices); Square Online / Squarespace / Toast aren't supported yet.*
+3. **Record only changes** → `competitor.prices` → Nonna: "The Bakery dropped their parfait to $6.95". New bakeries → `competitor.discovered`.
+4. **Reviews** (Google/mock): counts of "pricey" vs "good value" plus quoted prices, **computed live, never stored** (Google's caching rules).
+
+Google Maps / Uber Eats pages are never scraped (against their terms, and Places has no menu prices anyway). Google names aren't stored either: we keep the place id (allowed) and take the name from their own website.
+Demo lever: `POST /api/pricewatch/refresh {"mockVariant":"sale"}` makes The Bakery's mock site drop its parfait to $6.95. Mock sites are viewable at `/mock/the-bakery/menu`.
+
+Fallbacks when automation can't read a site:
 - **Mock feed**: The Bakery's menu (the rival named in the brief), seeded with one example of each verdict
 - **Menu photo**: `POST /api/pricewatch/photo` (multipart `photo`, optional `competitorName`). Claude reads items and prices and maps them to our product ids (strict schema). Returns **503** without Anthropic credentials. *Not yet tested against the live API.*
 - **Voice/manual**: `POST /api/pricewatch/prices {competitorName, items:[{itemName, priceCents}]}`. Names are matched to our products with a deterministic matcher.
