@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 type SpeechResult = { isFinal: boolean; 0: { transcript: string } };
 type Recognition = {
@@ -10,6 +10,9 @@ type Recognition = {
   start: () => void; stop: () => void; abort: () => void;
 };
 type RecognitionConstructor = new () => Recognition;
+const subscribeSupport = () => () => {};
+const browserSupportsSpeech = () => typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+const serverSupportsSpeech = () => false;
 
 export interface NonnaEars {
   supported: boolean;
@@ -19,7 +22,7 @@ export interface NonnaEars {
 }
 
 export function useNonnaEars(opts: { enabled: boolean; expectingAnswer: boolean; onCommand: (text: string) => void }): NonnaEars {
-  const supported = typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  const supported = useSyncExternalStore(subscribeSupport, browserSupportsSpeech, serverSupportsSpeech);
   const [listening, setListening] = useState(false);
   const [lastHeard, setLastHeard] = useState("");
   const recognition = useRef<Recognition | null>(null);
