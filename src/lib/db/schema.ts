@@ -55,7 +55,8 @@ CREATE TABLE IF NOT EXISTS stock_lots (
   ingredient_id  TEXT NOT NULL REFERENCES ingredients(id),
   qty_remaining  REAL NOT NULL,
   received_at    TEXT NOT NULL,
-  expires_at     TEXT NOT NULL
+  expires_at     TEXT NOT NULL,
+  expiring_notified_at  TEXT  -- set when stock.expiring fired, so it fires once per lot
 );
 
 -- written by: pantry. read by: voice, shop window, ledger

@@ -50,7 +50,8 @@ One Next.js app, one SQLite file, one in-process event bus. Simple enough to run
 | `GET /api/sales` | 3 | `Sale[]` (last 24h) |
 | `GET /api/inventory` | 1 | `IngredientStatus[]` |
 | `GET /api/reorders` · `POST /api/reorders` `{ingredientId, qty?}` | 1 | `Reorder[]` / `Reorder` |
-| `POST /api/reorders/:id/approve\|cancel\|receive` | 1 | `Reorder` / `StockLot` |
+| `POST /api/reorders/:id/approve\|cancel\|receive` | 1 | `Reorder` / `StockLot` (approve → **402** `{declined, cardId}` if the card declines) |
+| `GET /api/ramp` | 1 | `{cards: (RampCard & {weeklySpendCents})[], transactions: RampTransaction[]}` |
 | `GET /api/analytics/products\|busyness\|rush\|prep\|truths\|waste?days=N` | 3 | see `src/lib/analytics` |
 | `POST /api/voice` `{transcript, pendingNotificationId?}` | 2 | `VoiceResponse` |
 | `GET /api/notifications/stream` | 2 | SSE: `{type:"notification", notification}` |

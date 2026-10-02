@@ -76,7 +76,7 @@ Four lanes, one owner each. Each person may drive their lane with a coding agent
 
 | Lane | Name | Owner | Role doc |
 |---|---|---|---|
-| 1 | 🧺 The Pantry: inventory, expiry, reorders, mock Ramp | _TBD_ | [`roles/lane-1-pantry.md`](roles/lane-1-pantry.md) |
+| 1 | 🧺 The Pantry: inventory, expiry, reorders, mock Ramp | @hamzakammar | [`roles/lane-1-pantry.md`](roles/lane-1-pantry.md) |
 | 2 | 🗣️ The Voice: wake word, STT/TTS, intents, persona, notifications | _TBD_ | [`roles/lane-2-voice.md`](roles/lane-2-voice.md) |
 | 3 | 📈 The Ledger: sales, simulator, analytics, busyness, forecast | _TBD_ | [`roles/lane-3-ledger.md`](roles/lane-3-ledger.md) |
 | 4 | 🪟 The Shop Window: kiosk, dashboard, till, demo, pitch | _TBD_ | [`roles/lane-4-shop-window.md`](roles/lane-4-shop-window.md) |
@@ -142,7 +142,7 @@ By signing, you agree on the goals, non-goals, your lane, and the working agreem
 
 | Name | Lane | Agree? | Comments |
 |---|---|---|---|
-| @hamzakammar | | ☐ | |
+| @hamzakammar | 1 | ☐ | |
 | @markrozin | | ☐ | |
 | @natelamarche | | ☐ | |
 | @Mo-Naq1 | | ☐ | |

@@ -3,7 +3,7 @@
  *
  * Stock is set up so the demo starts with things already happening:
  *   - heavy cream is just above its reorder point (a couple of parfaits tip it over)
- *   - mixed berries expire tomorrow
+ *   - mixed berries expire in ~20h (already "expiring soon")
  *   - milk expires in ~36h
  * Sales history is NOT seeded here. Lane 3's simulator (`npm run simulate`) adds it.
  */
@@ -75,7 +75,7 @@ const LOTS: [string, number, number, number][] = [
   ["ing_mascarpone", 1800, 2, 6],
   ["ing_butter", 5000, 5, 25],
   ["ing_apples", 7000, 3, 11],
-  ["ing_berries", 2200, 3, 1], // expires tomorrow
+  ["ing_berries", 2200, 3, 0.75], // expires in ~20h: "expiring soon" at demo start, dead after "+1 day"
   ["ing_pumpkin", 3000, 1, 6],
   ["ing_flour", 15000, 10, 170],
   ["ing_sugar", 8000, 20, 345],
