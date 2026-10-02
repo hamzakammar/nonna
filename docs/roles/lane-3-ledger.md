@@ -36,6 +36,7 @@ Most of the **differentiators** live in your lane. See the charter § "What make
 - [ ] **Camera people counter** 📷: a client-side TensorFlow.js `coco-ssd` on the kiosk webcam counts people in frame every 10s and POSTs counts to a `people_counts` endpoint. **No images are stored or sent.** Blend into the heatmap as `peopleAvg`. This is "busyness" that isn't just sales, which makes it a strong pitch point.
 - [ ] **Weather-aware forecast**: Open-Meteo (free, no key). Rainy day → more lattes, fewer parfaits.
 - [ ] **"Lost sales"** estimate: minutes a top product was out of stock × its usual sales rate.
+- [x] **Make-list** (our P2 pick, instead of a heatmap screen): `src/lib/sales/prep.ts`, `/api/sales/todo`. A morning shelf batch per product from `prepForecast`, then every sale the shelf can't cover adds "make N for this customer" by itself. Phone or university orders can be added by hand. Drinks never go on it. `?next=1` gives the kiosk its one next task. New table `prep_tasks` (additive).
 - [ ] **Staffing hint**: "Saturday 11–1 needs two people behind the counter."
 
 ## Gotchas

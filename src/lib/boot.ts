@@ -5,6 +5,7 @@
  */
 import { registerInventoryListeners } from "./inventory";
 import { registerAnalyticsListeners } from "./analytics";
+import { registerPrepListeners } from "./sales/prep";
 import { registerNotifyListeners } from "./notify";
 import { registerPriceWatchListeners } from "./pricewatch/refresh";
 
@@ -15,6 +16,7 @@ export function ensureBooted(): void {
   g.__nonnaBooted = true;
   registerInventoryListeners(); // Lane 1
   registerAnalyticsListeners(); // Lane 3
+  registerPrepListeners(); // Lane 3
   registerNotifyListeners(); // Lane 2
   registerPriceWatchListeners(); // Lane 1 (after notify, so the first refresh's events are heard)
 }
