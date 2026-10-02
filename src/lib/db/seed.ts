@@ -60,6 +60,17 @@ const ALT_OFFERS: [string, string, number][] = [
   ["ing_eggs", "sup_rosa", 42],
 ];
 
+// The rival from the organisers' brief ("a new Fall Parfait that can beat The Bakery's version").
+// [item as on their menu, price, our product]: set up so Price Watch has one of each verdict.
+const BAKERY_MENU: [string, number, string | null][] = [
+  ["Pumpkin Spice Parfait", 725, "prd_fall_parfait"], // ours $7.50 → undercut to $7.00, margin still ~71%
+  ["Mixed Berry Parfait", 650, "prd_berry_parfait"], // ours $7.00, but $6.25 would break the 60% floor → can't undercut
+  ["Butter Croissant", 450, "prd_croissant"], // ours $3.75, 75¢ under → room to raise
+  ["Dutch Apple Slice", 525, "prd_apple_pie"], // ours $5.50 → undercut to $5.00
+  ["Double Espresso", 375, null], // not on our menu
+  ["Oat Latte", 495, "prd_latte"], // ours $4.75, 20¢ under → hold
+];
+
 const PRODUCTS = [
   { id: "prd_fall_parfait", name: "Fall Parfait", emoji: "🍂", price_cents: 750, category: "parfait" },
   { id: "prd_berry_parfait", name: "Berry Parfait", emoji: "🍓", price_cents: 700, category: "parfait" },
@@ -139,6 +150,15 @@ export function seed() {
         qty_remaining: qty,
         received_at: iso(t - receivedAgo * DAY),
         expires_at: iso(t + expiresIn * DAY + 2 * HOUR),
+      });
+    });
+  });
+  tx(() => {
+    insert("competitors", { id: "comp_bakery", name: "The Bakery" });
+    BAKERY_MENU.forEach(([item_name, price_cents, product_id], n) => {
+      insert("competitor_prices", {
+        id: `cp_seed_${n}`, competitor_id: "comp_bakery", item_name, price_cents, product_id,
+        observed_at: new Date(t - 2 * DAY).toISOString(), source: "mock",
       });
     });
   });

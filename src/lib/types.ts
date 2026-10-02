@@ -157,6 +157,48 @@ export interface WasteEvent {
   at: string;
 }
 
+// ---------- Price Watch (competitor prices) ----------
+
+export interface Competitor {
+  id: string;
+  name: string; // "The Bakery"
+}
+
+/** One observed price on a competitor's menu, matched (if we can) to one of our products. */
+export interface CompetitorPrice {
+  id: string;
+  competitorId: string;
+  itemName: string; // as written on their menu: "Pumpkin Spice Parfait"
+  priceCents: number;
+  productId?: string; // our closest product, if any
+  observedAt: string;
+  source: "mock" | "photo" | "voice" | "manual";
+}
+
+export type PriceAction =
+  | "undercut" // we're pricier or level, and can go 25¢ under them and keep our margin floor
+  | "raise" // we're well under them: raise and still be cheaper
+  | "hold" // already a bit cheaper; leave it
+  | "cant_undercut"; // going under them would break our margin floor: compete on quality instead
+
+/** Computed pricing advice for one product. Every number is exact; Nonna only rewords `reason`. */
+export interface PriceAdvice {
+  productId: string;
+  name: string;
+  competitorId: string;
+  competitorName: string;
+  theirItemName: string;
+  theirPriceCents: number;
+  ourPriceCents: number;
+  unitCostCents: number; // ingredient cost at today's supplier prices
+  marginPctNow: number;
+  floorPriceCents: number; // lowest price that keeps the margin floor
+  action: PriceAction;
+  suggestedPriceCents?: number; // for undercut / raise
+  marginPctAtSuggested?: number;
+  reason: string; // factual, e.g. "The Bakery: $7.95. Ours: $7.50 (72.8% margin). Floor at 60%: $5.10."
+}
+
 // ---------- Sales ----------
 
 export type PaymentMethod = "card" | "cash";
@@ -244,7 +286,8 @@ export type NotificationKind =
   | "gentle_truth"
   | "daily_summary"
   | "card_declined"
-  | "price_changed";
+  | "price_changed"
+  | "competitor_prices";
 
 export type Channel = "speaker" | "dashboard" | "messenger";
 
@@ -272,6 +315,8 @@ export type VoiceAction =
   | { type: "mark_received"; reorderId: string }
   | { type: "log_waste"; ingredientId: string; qty: number }
   | { type: "snooze"; notificationId: string; minutes: number }
+  /** "Should I drop the Fall Parfait to $7.70?" → yes */
+  | { type: "set_price"; productId: string; priceCents: number }
   /** "Gerald's card is maxed, raise it to $700 and order?" → yes */
   | { type: "raise_card_limit"; cardId: string; newLimitCents: number; thenApproveReorderId?: string }
   | { type: "none" };
@@ -330,6 +375,8 @@ export interface EventMap {
     suggestedLimitCents?: number; // only for over_limit
   };
   "price.changed": { change: PriceChange };
+  /** New competitor prices came in (photo / voice / manual). `advice` holds only actionable items (undercut / raise). */
+  "competitor.prices": { competitorId: string; prices: CompetitorPrice[]; advice: PriceAdvice[] };
   notify: { notification: NonnaNotification };
   "clock.changed": { now: string };
 }

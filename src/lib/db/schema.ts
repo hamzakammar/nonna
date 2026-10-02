@@ -51,6 +51,23 @@ CREATE TABLE IF NOT EXISTS supplier_offers (
   PRIMARY KEY (ingredient_id, supplier_id)
 );
 
+-- Price Watch. written by: pantry. read by: voice, shop window
+CREATE TABLE IF NOT EXISTS competitors (
+  id    TEXT PRIMARY KEY,
+  name  TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS competitor_prices (
+  id             TEXT PRIMARY KEY,
+  competitor_id  TEXT NOT NULL REFERENCES competitors(id),
+  item_name      TEXT NOT NULL,
+  price_cents    INTEGER NOT NULL,
+  product_id     TEXT REFERENCES products(id),
+  observed_at    TEXT NOT NULL,
+  source         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS competitor_prices_product ON competitor_prices(product_id, observed_at);
+
 -- read by: pantry (consumption), ledger (margins)
 CREATE TABLE IF NOT EXISTS recipe_items (
   product_id     TEXT NOT NULL REFERENCES products(id),

@@ -3,7 +3,7 @@
 
 > Your mission: Grandma never runs out and never throws money in the bin without knowing. Every sale quietly eats stock through the recipes. When something gets low or goes bad, Nonna proposes a reorder, and a "yes" pays for it on the supplier's (mock) Ramp card.
 
-**You own:** `src/lib/inventory/`, `src/lib/ramp-mock/`, `src/lib/db/schema.ts`, `src/lib/db/seed.ts`, `src/app/api/inventory/`, `src/app/api/reorders/`
+**You own:** `src/lib/inventory/`, `src/lib/ramp-mock/`, `src/lib/pricewatch/`, `src/app/api/pricewatch/`, `src/app/api/suppliers/`, `src/lib/db/schema.ts`, `src/lib/db/seed.ts`, `src/app/api/inventory/`, `src/app/api/reorders/`
 **You provide:** `listInventory`, `consumeForSale`, `scanExpiry`, `proposeReorder`, `approveReorder`, `cancelReorder`, `receiveReorder`, `receiveDueDeliveries`, `orderNow`, `logWaste`, `listReorders`, `listWaste`, `tick`, `payments.*`; events `stock.low`, `stock.expiring`, `stock.expired`, `reorder.*`
 **You consume:** `sale.recorded` (Lane 3), `clock.changed` (clock)
 
@@ -49,6 +49,14 @@ P0 + P1 are done. Prove it with `npm run check:pantry` (runs against a throwaway
 - **Ledger (Lane 3):** waste is in `waste_events` (or `listWaste(sinceIso)`).
 - **Shop Window (Lane 4):** `GET /api/ramp` returns cards with `weeklySpendCents` + the latest 20 transactions. `POST /api/reorders/:id/approve` returns **402** `{declined, cardId}` when the card declines. `GET /api/ramp` also returns `autopilot: {maxOrderCents, weeklyBudgetCents, spentCents, remainingCents}`. Show it as "Nonna's allowance: $24 of $100 used this week", and badge autopilot reorders on the reorders list.
 - Seeded berries are "expiring soon" at start. `+1 day` on the demo clock expires them (≈$33 waste) and proposes a reorder.
+
+## Price Watch (competitor prices)
+Uber Eats has no API for other stores' menus (theirs only manages your *own* store, behind partner approval), and scraping it breaks their terms. So competitor prices come from:
+- **Mock feed**: The Bakery's menu (the rival named in the brief), seeded with one example of each verdict
+- **Menu photo**: `POST /api/pricewatch/photo` (multipart `photo`, optional `competitorName`). Claude reads items and prices and maps them to our product ids (strict schema). Returns **503** without Anthropic credentials. *Not yet tested against the live API.*
+- **Voice/manual**: `POST /api/pricewatch/prices {competitorName, items:[{itemName, priceCents}]}`. Names are matched to our products with a deterministic matcher.
+
+`priceAdvice()` compares each product with the cheapest competitor, using our ingredient cost at today's supplier prices and a **60% margin floor** (`PRICEWATCH_MIN_MARGIN`): `undercut` (25¢ under them, if it stays above the floor) · `cant_undercut` · `raise` (we're ≥50¢ cheaper) · `hold`. `setPrice()` / `POST /api/pricewatch/apply` refuses prices below the floor. A trade-war cost hike raises the floor automatically. New prices emit `competitor.prices` with only the actionable advice.
 
 ## Gotchas
 - Floats: quantities are REAL in SQLite. Compare with a small epsilon, or round to 2 decimals before checks.
