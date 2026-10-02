@@ -5,19 +5,20 @@ import Link from "next/link";
 import { useState } from "react";
 import type { IngredientStatus, Supplier, Unit } from "@/lib/types";
 import type { NewIngredientInput, NewMenuItemInput, NewMenuItemResult } from "@/lib/catalog/types";
-import { amount, ingredientEmoji, money, treatEmoji, UNIT_WORDS } from "@/components/format";
+import { amount, money, treatEmoji, UNIT_WORDS } from "@/components/format";
 import { Confetti, GrannyPage, StillCooking } from "@/components/GrannyPage";
 import { NonnaSays } from "@/components/Nonna";
+import { Icon, IconDot, ingredientIcon, type IconName } from "@/components/icons";
 import { send, useApi } from "@/components/useApi";
 
 const PER_TREAT_CHIPS: Record<Unit, number[]> = { g: [10, 25, 50, 100, 150, 200], ml: [10, 20, 30, 50, 100, 200], pcs: [0.5, 1, 2, 3] };
 const PACK_CHIPS: Record<Unit, number[]> = { g: [500, 1000, 2500, 5000], ml: [500, 1000, 2000, 4000], pcs: [12, 30, 50, 100] };
 const FRESH = [
-  { days: 3, label: "A few days", emoji: "🥀" },
-  { days: 7, label: "About a week", emoji: "🗓️" },
-  { days: 14, label: "Two weeks", emoji: "📆" },
-  { days: 30, label: "A month", emoji: "🌙" },
-  { days: 180, label: "Months and months", emoji: "🏺" },
+  { days: 3, label: "A few days" },
+  { days: 7, label: "About a week" },
+  { days: 14, label: "Two weeks" },
+  { days: 30, label: "A month" },
+  { days: 180, label: "Months and months" },
 ];
 
 type Line = { key: string; name: string; unit: Unit; qtyPerUnit: number; ingredientId?: string; newIngredient?: NewIngredientInput };
@@ -29,11 +30,14 @@ type Step =
   | "check" | "done";
 
 const MAIN: Step[] = ["name", "price", "ingredients", "check"];
+const UNIT_ICON: Record<Unit, IconName> = { g: "sack", ml: "bottle", pcs: "egg" };
+// A choice chip, like the price chips in design/new-treat-price.html.
+const CHIP = "min-h-[68px] rounded-2xl border-[1.5px] border-linen bg-paper px-[26px] text-[26px] font-extrabold aria-pressed:border-rust aria-pressed:bg-tint-rust";
 
 const toCents = (dollars: string) => Math.round(Number(dollars.replace(/[^0-9.]/g, "")) * 100);
 
 function Question({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-[40px] font-bold leading-tight">{children}</h2>;
+  return <h2 className="m-0 text-[40px] leading-[1.15]">{children}</h2>;
 }
 
 function NumberBox({ value, onChange, unitWord, step, placeholder }: { value: number | undefined; onChange: (n: number | undefined) => void; unitWord: string; step: number; placeholder?: string }) {
@@ -52,7 +56,7 @@ function NumberBox({ value, onChange, unitWord, step, placeholder }: { value: nu
             onChange(e.target.value === "" || Number.isNaN(n) ? undefined : n);
           }}
         />
-        <span className="font-display text-[34px] font-bold">{unitWord}</span>
+        <span className="font-display text-[34px]">{unitWord}</span>
       </div>
       <button type="button" className="big-btn w-[84px] text-[40px]" onClick={() => bump(step)} aria-label="More">+</button>
     </div>
@@ -63,7 +67,7 @@ function Chips({ values, unit, onPick }: { values: number[]; unit: Unit; onPick:
   return (
     <div className="flex flex-wrap gap-3">
       {values.map((v) => (
-        <button key={v} type="button" className="tile min-w-[110px] text-[24px]" onClick={() => onPick(v)}>
+        <button key={v} type="button" className={CHIP} onClick={() => onPick(v)}>
           {unit === "pcs" ? v : amount(v, unit)}
         </button>
       ))}
@@ -155,12 +159,12 @@ export default function NewTreat() {
   if (step === "done" && result) {
     const needOrders = result.orderedIngredients.filter((o) => o.reorderId);
     return (
-      <GrannyPage title="All done!" emoji="🎉">
+      <GrannyPage title="All done!">
         <Confetti />
-        <div className="toon pop-in flex flex-col items-center gap-6 p-10 text-center">
-          <span className="bob text-[140px] leading-none">{result.item.emoji}</span>
-          <h2 className="text-[48px] font-bold">{result.item.name} is on the menu!</h2>
-          <p className="text-[26px] font-semibold">
+        <div className="toon pop-in flex flex-col items-center gap-6 px-10 py-12 text-center">
+          <IconDot name="dome" tint="olive" size={140} />
+          <h2 className="m-0 text-[48px]">{result.item.name} is on the menu!</h2>
+          <p className="m-0 text-[26px] font-semibold text-ink-soft">
             I&apos;ll keep track of every ingredient, and ask you before I buy more.
           </p>
           {needOrders.length > 0 && (
@@ -169,9 +173,9 @@ export default function NewTreat() {
             </NonnaSays>
           )}
           <div className="flex flex-wrap justify-center gap-4">
-            {needOrders.length > 0 && <Link href="/kiosk/orders" className="big-btn btn-primary">📦 Check the order</Link>}
-            <Link href="/kiosk/menu" className="big-btn btn-go">🍰 See my menu</Link>
-            <Link href="/kiosk" className="big-btn">🏠 Home</Link>
+            {needOrders.length > 0 && <Link href="/kiosk/orders" className="big-btn btn-primary"><Icon name="box" /> Check the order</Link>}
+            <Link href="/kiosk/menu" className="big-btn btn-go">See my menu</Link>
+            <Link href="/kiosk" className="big-btn"><Icon name="home" className="text-rust" /> Home</Link>
           </div>
         </div>
       </GrannyPage>
@@ -179,21 +183,21 @@ export default function NewTreat() {
   }
 
   return (
-    <GrannyPage title="Add a new treat" emoji="➕">
+    <GrannyPage title="Add a new treat">
       {/* where am I? five big dots */}
-      <ol className="flex items-center gap-3" aria-label={`Step ${stepNumber + 1} of ${MAIN.length}`}>
+      <ol className="m-0 flex list-none items-center gap-3 p-0" aria-label={`Step ${stepNumber + 1} of ${MAIN.length}`}>
         {MAIN.map((s, i) => (
-          <li key={s} className={`h-6 rounded-full border-[1.5px] border-linen transition-all ${i < stepNumber ? "w-6 bg-sage" : i === stepNumber ? "w-14 bg-terracotta" : "w-6 bg-white"}`} />
+          <li key={s} className={`h-[22px] rounded-full transition-all ${i < stepNumber ? "w-[22px] bg-olive" : i === stepNumber ? "w-14 bg-rust" : "w-[22px] border-[1.5px] border-taupe bg-card"}`} />
         ))}
-        <span className="ml-2 text-[22px] font-bold">Step {stepNumber + 1} of {MAIN.length}</span>
+        <span className="ml-1.5 text-[22px] font-extrabold text-ink-soft">Step {stepNumber + 1} of {MAIN.length}</span>
       </ol>
 
-      <section key={step} className="toon pop-in flex flex-col gap-7 p-7 sm:p-9">
+      <section key={step} className="toon pop-in flex flex-col gap-7 px-9 pb-[38px] pt-[34px]">
         {step === "name" && (
           <>
             <Question>What&apos;s the new treat called?</Question>
             <input autoFocus className="toon-input" placeholder="Pumpkin Tart" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && name.trim() && setStep("price")} />
-            {name.trim() && <div className="pop-in flex items-center gap-3 text-[26px] font-bold"><span className="text-[64px]">{emoji}</span> Looks yummy!</div>}
+            
           </>
         )}
 
@@ -201,12 +205,12 @@ export default function NewTreat() {
           <>
             <Question>How much does one {name.trim()} cost?</Question>
             <div className="flex items-center gap-3">
-              <span className="font-display text-[60px] font-bold">$</span>
-              <input autoFocus className="toon-input w-[260px] text-[56px]" inputMode="decimal" placeholder="6.50" value={price} onChange={(e) => setPrice(e.target.value)} />
+              <span className="font-display text-[60px] leading-none">$</span>
+              <input autoFocus className="toon-input font-display min-h-[96px] w-[260px] text-[56px] font-normal" inputMode="decimal" placeholder="6.50" value={price} onChange={(e) => setPrice(e.target.value)} />
             </div>
             <div className="flex flex-wrap gap-3">
               {[300, 450, 550, 650, 750].map((c) => (
-                <button key={c} type="button" className="tile text-[26px]" onClick={() => setPrice((c / 100).toFixed(2))}>{money(c)}</button>
+                <button key={c} type="button" aria-pressed={toCents(price) === c} className={CHIP} onClick={() => setPrice((c / 100).toFixed(2))}>{money(c)}</button>
               ))}
             </div>
           </>
@@ -215,23 +219,22 @@ export default function NewTreat() {
         {step === "ingredients" && (
           <>
             <Question>What goes in one {name.trim()}?</Question>
-            {lines.length === 0 && <p className="text-[24px] text-cocoa-soft">Nothing yet. Add the first ingredient!</p>}
-            <ul className="flex flex-col gap-3">
+            {lines.length === 0 && <p className="m-0 text-[24px] font-semibold text-ink-soft">Nothing yet. Add the first ingredient!</p>}
+            <ul className="m-0 flex list-none flex-col gap-3 p-0">
               {lines.map((l) => (
-                <li key={l.key} className="flex items-center gap-4 rounded-3xl border-[1.5px] border-linen bg-butter px-5 py-3">
-                  <span aria-hidden className="text-5xl">{ingredientEmoji(l.name)}</span>
-                  <span className="flex-1 text-[28px] font-bold">
+                <li key={l.key} className="flex items-center gap-4 rounded-[18px] border-[1.5px] border-linen bg-paper py-3 pl-6 pr-3.5">
+                                    <span className="flex flex-1 items-center gap-3.5 text-[28px] font-extrabold">
                     {amount(l.qtyPerUnit, l.unit)} {l.unit === "pcs" ? "×" : "of"} {l.name.toLowerCase()}
-                    {l.newIngredient && <span className="ml-2 rounded-full bg-sage px-3 py-0.5 text-[18px]">new!</span>}
+                    {l.newIngredient && <span className="tag bg-tint-olive text-[18px] text-[#333f1c]">new</span>}
                   </span>
-                  <button type="button" className="big-btn min-h-[56px] text-[20px]" onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
+                  <button type="button" className="big-btn min-h-[56px] px-[22px] text-[20px] shadow-none" onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
                     Remove
                   </button>
                 </li>
               ))}
             </ul>
-            <button type="button" className="big-btn self-start btn-go" onClick={startIngredient}>
-              <span aria-hidden>➕</span> {lines.length ? "Add another ingredient" : "Add an ingredient"}
+            <button type="button" className="big-btn btn-go min-h-[76px] self-start px-[34px] text-[28px]" onClick={startIngredient}>
+              <Icon name="plus" stroke={2.2} /> {lines.length ? "Add another ingredient" : "Add an ingredient"}
             </button>
           </>
         )}
@@ -239,17 +242,17 @@ export default function NewTreat() {
         {step === "pick" && (
           <>
             <Question>Which ingredient?</Question>
-            <input autoFocus className="toon-input text-[32px]" placeholder="🔎 Type to find it…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input autoFocus className="toon-input text-[32px]" placeholder="Type to find it…" value={search} onChange={(e) => setSearch(e.target.value)} />
             {inventory.status === "cooking" || inventory.status === "error" ? (
               <StillCooking what="Your pantry list" error={inventory.status === "error"} />
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <button type="button" className="tile bg-butter-deep text-[22px]" onClick={() => { setB({ name: search.trim() }); setStep("new-name"); }}>
-                  <span className="text-5xl">✨</span> Something new
+              <div className="grid grid-cols-4 gap-3">
+                <button type="button" className="tile border-dashed border-rust bg-tint-rust py-5 text-[22px]" onClick={() => { setB({ name: search.trim() }); setStep("new-name"); }}>
+                  <IconDot name="plus" tint="rust" size={64} /> Something new
                 </button>
                 {matches.map((i) => (
-                  <button key={i.id} type="button" className="tile text-[22px]" onClick={() => { setB({ name: i.name, unit: i.unit, ingredientId: i.id }); setStep("amount"); }}>
-                    <span className="text-5xl">{ingredientEmoji(i.name)}</span> {i.name}
+                  <button key={i.id} type="button" className="tile py-5 text-[22px]" onClick={() => { setB({ name: i.name, unit: i.unit, ingredientId: i.id }); setStep("amount"); }}>
+                    <IconDot {...ingredientIcon(i.name)} size={64} /> {i.name}
                   </button>
                 ))}
               </div>
@@ -262,7 +265,7 @@ export default function NewTreat() {
             <Question>What&apos;s the new ingredient called?</Question>
             <input autoFocus className="toon-input" placeholder="Cinnamon" value={b.name} onChange={(e) => setB({ ...b, name: e.target.value })} />
             {nameClash && (
-              <p className="text-[24px] font-bold text-terracotta-deep">
+              <p className="m-0 text-[24px] font-bold text-rust">
                 You already have {nameClash.name}!{" "}
                 <button type="button" className="underline" onClick={() => { setB({ name: nameClash.name, unit: nameClash.unit, ingredientId: nameClash.id }); setStep("amount"); }}>
                   Use that one
@@ -275,12 +278,12 @@ export default function NewTreat() {
         {step === "new-unit" && (
           <>
             <Question>How do you measure {b.name.trim().toLowerCase()}?</Question>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-3 gap-4">
               {(["g", "ml", "pcs"] as Unit[]).map((u) => (
                 <button key={u} type="button" aria-pressed={b.unit === u} className="tile py-6 text-[30px]" onClick={() => { setB({ ...b, unit: u }); setStep("new-supplier"); }}>
-                  <span className="text-6xl">{UNIT_WORDS[u].emoji}</span>
+                  <IconDot name={UNIT_ICON[u]} tint="gold" size={84} />
                   {UNIT_WORDS[u].verb}
-                  <span className="text-[20px] text-cocoa-soft">in {UNIT_WORDS[u].word}</span>
+                  <span className="text-[20px] text-ink-soft">in {UNIT_WORDS[u].word}</span>
                 </button>
               ))}
             </div>
@@ -293,13 +296,13 @@ export default function NewTreat() {
             {suppliers.status !== "ok" ? (
               <StillCooking what="Your suppliers" error={suppliers.status === "error"} />
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3">
                 {suppliers.data.map((s) => (
                   <button key={s.id} type="button" aria-pressed={b.supplierId === s.id} className="tile flex-row justify-start gap-4 px-5 text-left text-[26px]" onClick={() => { setB({ ...b, supplierId: s.id }); setStep("new-pack"); }}>
-                    <span className="text-5xl">{s.isLocal ? "🌻" : "🚚"}</span>
+                    <IconDot name={s.isLocal ? "leaf" : "truck"} tint={s.isLocal ? "olive" : "gold"} size={64} />
                     <span>
                       {s.name}
-                      <span className="block text-[18px] text-cocoa-soft">{s.isLocal ? "Local" : "Delivers"} · arrives in {s.leadTimeHours <= 24 ? `${s.leadTimeHours} hours` : `${Math.round(s.leadTimeHours / 24)} days`}</span>
+                      <span className="block text-[18px] text-ink-soft">{s.isLocal ? "Local" : "Delivers"} · arrives in {s.leadTimeHours <= 24 ? `${s.leadTimeHours} hours` : `${Math.round(s.leadTimeHours / 24)} days`}</span>
                     </span>
                   </button>
                 ))}
@@ -315,8 +318,8 @@ export default function NewTreat() {
             <Chips values={PACK_CHIPS[b.unit]} unit={b.unit} onPick={(n) => setB({ ...b, packSize: n })} />
             <Question>And what does that pack cost?</Question>
             <div className="flex items-center gap-3">
-              <span className="font-display text-[56px] font-bold">$</span>
-              <input className="toon-input w-[240px] text-[48px]" inputMode="decimal" placeholder="8.00" value={b.packPrice ?? ""} onChange={(e) => setB({ ...b, packPrice: e.target.value })} />
+              <span className="font-display text-[56px] leading-none">$</span>
+              <input className="toon-input font-display w-[240px] text-[48px] font-normal" inputMode="decimal" placeholder="8.00" value={b.packPrice ?? ""} onChange={(e) => setB({ ...b, packPrice: e.target.value })} />
             </div>
           </>
         )}
@@ -324,10 +327,10 @@ export default function NewTreat() {
         {step === "new-fresh" && (
           <>
             <Question>How long does {b.name.trim().toLowerCase()} stay fresh?</Question>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div className="grid grid-cols-5 gap-3">
               {FRESH.map((f) => (
                 <button key={f.days} type="button" aria-pressed={b.shelfLifeDays === f.days} className="tile py-5 text-[22px]" onClick={() => { setB({ ...b, shelfLifeDays: f.days }); setStep("amount"); }}>
-                  <span className="text-5xl">{f.emoji}</span> {f.label}
+                  <IconDot name="clock" tint="rose" size={64} /> {f.label}
                 </button>
               ))}
             </div>
@@ -345,21 +348,21 @@ export default function NewTreat() {
         {step === "check" && (
           <>
             <Question>Does this look right?</Question>
-            <div className="flex items-center gap-5 rounded-3xl border-[1.5px] border-linen bg-butter p-6">
-              <span className="text-[100px] leading-none">{emoji}</span>
-              <div>
-                <div className="font-display text-[44px] font-bold leading-tight">{name.trim()}</div>
-                <div className="font-display text-[36px] font-bold text-terracotta-deep">{money(toCents(price))}</div>
+            <div className="flex items-baseline gap-3 rounded-[18px] border-[1.5px] border-linen bg-paper px-7 py-6">
+                            <div>
+                <div className="font-display text-[44px] leading-tight">{name.trim()}</div>
+                <div aria-hidden className="min-w-5 flex-1 border-b-[3px] border-dotted border-[#c9ad84]" />
+                <div className="font-display text-[44px] text-rust">{money(toCents(price))}</div>
               </div>
             </div>
-            <ul className="flex flex-col gap-2 text-[26px] font-bold">
+            <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
               {lines.map((l) => (
-                <li key={l.key}>{ingredientEmoji(l.name)} {amount(l.qtyPerUnit, l.unit)} {l.unit === "pcs" ? "×" : "of"} {l.name.toLowerCase()}{l.newIngredient ? " (new)" : ""}</li>
+                <li key={l.key} className="rounded-full border-[1.5px] border-linen bg-paper px-3.5 py-[5px] text-[22px] font-bold">{amount(l.qtyPerUnit, l.unit)} {l.unit === "pcs" ? "×" : "of"} {l.name.toLowerCase()}{l.newIngredient ? " (new)" : ""}</li>
               ))}
             </ul>
-            {error && <p className="text-[24px] font-bold text-terracotta-deep">😳 {error}</p>}
-            <button type="button" className="big-btn self-center btn-go px-10 text-[34px]" disabled={saving} onClick={save}>
-              {saving ? "Saving…" : "Put it on the menu! 🎉"}
+            {error && <p className="m-0 text-[24px] font-bold text-rust">{error}</p>}
+            <button type="button" className="big-btn btn-go min-h-[84px] self-center px-12 text-[34px]" disabled={saving} onClick={save}>
+              <Icon name="check" size={32} stroke={2.4} /> {saving ? "Saving…" : "Put it on the menu"}
             </button>
           </>
         )}
@@ -367,10 +370,12 @@ export default function NewTreat() {
 
       {nav && (
         <div className="flex justify-between gap-4">
-          <button type="button" className="big-btn" onClick={nav.back}>⬅ Back</button>
+          <button type="button" className="big-btn min-h-[76px] px-[34px] text-[28px] shadow-none" onClick={nav.back}>
+            <Icon name="chevron" stroke={2.2} className="rotate-180" /> Back
+          </button>
           {nav.next && (
-            <button type="button" className="big-btn btn-primary" disabled={!nav.ok} onClick={nav.next}>
-              {step === "amount" ? "Add it ✔" : "Next ➡"}
+            <button type="button" className="big-btn btn-primary min-h-[76px] px-11" disabled={!nav.ok} onClick={nav.next}>
+              {step === "amount" ? <>Add it <Icon name="check" stroke={2.4} /></> : <>Next <Icon name="chevron" stroke={2.2} /></>}
             </button>
           )}
         </div>

@@ -1,7 +1,7 @@
 "use client";
-// Lane 4. The presenter's remote control. Spec: docs/DEMO.md
-// Moves the demo clock (/api/sim), fires a rush of sales (/api/sales) and the Price Watch sale lever.
-import Link from "next/link";
+// Lane 4. The presenter's remote control (design/demo.html). Spec: docs/DEMO.md
+// Moves the demo clock (/api/sim), fires a rush of sales (/api/sales), starts the trade war (/api/suppliers/price),
+// runs the Price Watch sale lever, and resets the world.
 import { useState } from "react";
 import type { MenuItem } from "@/lib/catalog/types";
 import { DAY_NAMES } from "@/components/format";
@@ -19,33 +19,45 @@ function randInt(n: number): number {
   return (seed >>> 0) % n;
 }
 
+const clockBtn = "min-h-[60px] rounded-2xl border-[1.5px] border-taupe bg-paper px-[18px] text-[20px] font-extrabold disabled:opacity-50";
+const storyBtn = "font-display min-h-[60px] shrink-0 rounded-full px-7 text-[22px] text-card disabled:opacity-50";
+
+function Story({ title, note, children }: { title: string; note: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-5 rounded-2xl border-[1.5px] border-linen bg-paper px-[18px] py-4">
+      <div className="flex flex-1 flex-col gap-0.5">
+        <div className="text-[21px] font-extrabold">{title}</div>
+        <div className="text-[17px] font-semibold text-ink-soft">{note}</div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export default function Demo() {
   const clock = useApi<{ now: string }>("/api/sim", { pollMs: 2000 });
   const menu = useApi<MenuItem[]>("/api/menu");
-  const [log, setLog] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
-  const note = (line: string) => setLog((l) => [line, ...l].slice(0, 12));
+  const [last, setLast] = useState<string | null>(null);
 
   const now = clock.status === "ok" ? new Date(clock.data.now) : null;
 
-  async function advance(hours: number, label: string) {
-    const res = await send<{ now: string }>("/api/sim", { body: { advanceHours: hours } });
-    note(res.ok ? `⏩ ${label}` : `😳 clock: ${res.data.error}`);
+  async function run(label: string, fn: () => Promise<{ ok: boolean; data: { error?: string } }>) {
+    setBusy(true);
+    const res = await fn();
+    setBusy(false);
+    setLast(res.ok ? label : `Didn't work: ${res.data.error ?? "unknown error"}`);
     clock.reload();
   }
 
-  async function jumpToSaturday11() {
+  const advance = (hours: number, label: string) => run(label, () => send("/api/sim", { body: { advanceHours: hours } }));
+
+  function jumpToSaturday11() {
     if (!now) return;
     const target = new Date(now);
     target.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7 || 7));
     target.setHours(11, 0, 0, 0);
-    await advance((target.getTime() - now.getTime()) / 3_600_000, "Jumped to Saturday 11:00");
-  }
-
-  async function resetClock() {
-    await send("/api/sim", { body: { reset: true } });
-    note("⏮️ Clock back to real time");
-    clock.reload();
+    return advance((target.getTime() - now.getTime()) / 3_600_000, "Jumped to Saturday 11:00");
   }
 
   async function fireRush() {
@@ -60,53 +72,83 @@ export default function Demo() {
       await new Promise((r) => setTimeout(r, 400));
     }
     setBusy(false);
-    note(`🔥 Rush: ${ok}/20 sales went through`);
+    setLast(`Rush done: ${ok} of 20 sales went through`);
   }
-
-  async function bakerySale() {
-    const res = await send("/api/pricewatch/refresh", { body: { mockVariant: "sale" } });
-    note(res.ok ? "🏷️ The Bakery is running a sale" : `😳 price watch: ${res.data.error}`);
-  }
-
-  const buttons: { label: string; run: () => void; color: string }[] = [
-    { label: "+1 hour", run: () => advance(1, "+1 hour"), color: "bg-white" },
-    { label: "+1 day (watch the berries die)", run: () => advance(24, "+1 day"), color: "bg-white" },
-    { label: "Jump to Saturday 11:00", run: jumpToSaturday11, color: "bg-white" },
-    { label: "Reset clock", run: resetClock, color: "bg-white" },
-    { label: "🔥 Fire a rush (20 sales)", run: fireRush, color: "bg-terracotta" },
-    { label: "🏷️ The Bakery runs a sale", run: bakerySale, color: "bg-butter-deep" },
-  ];
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-6">
-      <header className="flex flex-wrap items-center gap-4">
-        <Link href="/kiosk" className="big-btn min-h-[60px] text-[22px]">🏠 Kiosk</Link>
-        <h1 className="text-[40px] font-bold">🎬 Demo control</h1>
+    <main className="mx-auto flex w-[860px] max-w-full flex-1 flex-col gap-[22px] px-10 pb-11 pt-7 text-[18px]">
+      <header className="flex flex-col gap-1">
+        <div className="text-[15px] font-extrabold uppercase tracking-[0.14em] text-rust">Nonna&apos;s bakery · presenter</div>
+        <h1 className="m-0 text-[40px] leading-[1.1]">Demo control</h1>
       </header>
 
-      <div className="toon flex items-center gap-4 p-6">
-        <span className="text-6xl">🕰️</span>
-        <div>
-          <div className="text-[20px] font-bold text-cocoa-soft">Demo clock</div>
-          <div className="font-display text-[36px] font-bold">
-            {now ? `${DAY_NAMES[now.getDay()]} ${now.toLocaleString("en-CA", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : "…"}
-          </div>
+      <section className="toon flex flex-col gap-[18px] rounded-[20px] px-[26px] pb-[26px] pt-6">
+        <div className="flex items-baseline justify-between gap-5">
+          <h2 className="m-0 text-[26px]">Demo clock</h2>
+          <div className="text-[16px] font-bold text-ink-soft">The whole shop runs on this time</div>
         </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {buttons.map((b) => (
-          <button key={b.label} className={`big-btn text-[24px] ${b.color}`} disabled={busy} onClick={b.run}>
-            {b.label}
+        <div className="font-display text-[60px] leading-[1.05]">
+          {now ? `${DAY_NAMES[now.getDay()]}, ${now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase()}` : "…"}
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+          <button className={clockBtn} disabled={busy} onClick={() => advance(1, "+1 hour")}>+1 hour</button>
+          <button className={clockBtn} disabled={busy} onClick={() => advance(24, "+1 day")}>+1 day</button>
+          <button className={clockBtn} disabled={busy} onClick={jumpToSaturday11}>Jump to Saturday 11:00</button>
+          <button
+            className="min-h-[60px] rounded-2xl border-[1.5px] border-dashed border-taupe px-[18px] text-[20px] font-extrabold text-ink-soft disabled:opacity-50"
+            disabled={busy}
+            onClick={() => run("Clock back to real time", () => send("/api/sim", { body: { reset: true } }))}
+          >
+            Reset clock
           </button>
-        ))}
-      </div>
+        </div>
+      </section>
 
-      {log.length > 0 && (
-        <ul className="toon flex flex-col gap-1 p-5 text-[20px] font-semibold">
-          {log.map((l, i) => <li key={i}>{l}</li>)}
-        </ul>
-      )}
+      <section className="toon flex flex-col gap-3.5 rounded-[20px] px-[26px] pb-[26px] pt-6">
+        <h2 className="m-0 text-[26px]">Story buttons</h2>
+        <Story title="Fire a rush" note="20 random sales over a few seconds. The rush meter goes red and Nonna keeps quiet.">
+          <button className={`${storyBtn} bg-rust shadow-[0_4px_0_#7c3812]`} disabled={busy} onClick={fireRush}>Fire a rush</button>
+        </Story>
+        <Story title="+1 day (watch the berries go off)" note="Mixed berries expire in about 20 hours, so one day forward logs them as waste.">
+          <button className={`${storyBtn} bg-rust shadow-[0_4px_0_#7c3812]`} disabled={busy} onClick={() => advance(24, "Skipped a day")}>Skip a day</button>
+        </Story>
+        <Story title="Trade war" note="Gerald's Dairy raises heavy cream by 36%. Nonna works out the margin hit and whether to switch to Maple Hill Creamery.">
+          <button
+            className={`${storyBtn} bg-wine shadow-[0_4px_0_#5e2117]`}
+            disabled={busy}
+            onClick={() => run("Gerald raised the price of cream", () => send("/api/suppliers/price", { body: { supplierId: "sup_gerald", ingredientId: "ing_cream", unitCostCents: 0.95 } }))}
+          >
+            Start trade war
+          </button>
+        </Story>
+        <Story title="The Bakery runs a sale" note="The Bakery's website drops its parfait to $6.95. Prices nearby shows what Nonna would do.">
+          <button
+            className={`${storyBtn} bg-ochre shadow-[0_4px_0_#4f3a0b]`}
+            disabled={busy}
+            onClick={() => run("The Bakery is running a sale", () => send("/api/pricewatch/refresh", { body: { mockVariant: "sale" } }))}
+          >
+            Start the sale
+          </button>
+        </Story>
+      </section>
+
+      <section className="flex items-center gap-5 rounded-[20px] border-[1.5px] border-dashed border-taupe px-[26px] py-5">
+        <div className="flex flex-1 flex-col gap-0.5">
+          <div className="text-[21px] font-extrabold">Reset world</div>
+          <div className="text-[17px] font-semibold text-ink-soft">Wipes the database and re-seeds the catalogue and starting stock.</div>
+        </div>
+        <button
+          className="min-h-[60px] shrink-0 rounded-full border-[1.5px] border-wine bg-card px-7 text-[20px] font-extrabold text-wine disabled:opacity-50"
+          disabled={busy}
+          onClick={() => {
+            if (window.confirm("Wipe the database and start the demo over?")) run("World reset", () => send("/api/sim", { body: { resetWorld: true } }));
+          }}
+        >
+          Reset world
+        </button>
+      </section>
+
+      {last && <p className="pop-in m-0 text-[18px] font-bold text-ink-soft">Last: {last}</p>}
     </main>
   );
 }

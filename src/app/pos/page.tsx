@@ -1,13 +1,23 @@
 "use client";
-// Lane 4 (UI) + Lane 3 (POST /api/sales). Stands in for Grandma's standalone Verifone.
+// Lane 4 (UI) + Lane 3 (POST /api/sales). The mock till (design/till.html), standing in for Grandma's standalone Verifone.
 // Every sale here eats stock through the recipes (Lane 1) and feeds the analytics (Lane 3).
-import Link from "next/link";
 import { useState } from "react";
 import type { PaymentMethod } from "@/lib/types";
 import type { MenuItem } from "@/lib/catalog/types";
 import { money } from "@/components/format";
 import { Loading, StillCooking } from "@/components/GrannyPage";
+import { Icon } from "@/components/icons";
 import { send, useApi } from "@/components/useApi";
+
+const CATEGORY_DOT: Record<MenuItem["category"], string> = {
+  parfait: "#c8642c",
+  pie: "#8a3324",
+  pastry: "#d9a441",
+  drink: "#6b4a2f",
+  other: "#6b7a4a",
+};
+
+const roundBtn = "flex h-12 w-12 items-center justify-center rounded-full border-[1.5px] border-taupe bg-paper";
 
 export default function Pos() {
   const menu = useApi<MenuItem[]>("/api/menu");
@@ -34,60 +44,92 @@ export default function Pos() {
     setBusy(false);
     if (res.ok) {
       setCart({});
-      setFlash(`${paymentMethod === "card" ? "💳" : "💵"} Paid ${money(res.data.totalCents)}. Grazie!`);
+      setFlash(`Paid ${money(res.data.totalCents)} by ${paymentMethod}. Grazie!`);
     } else {
-      setFlash(`😳 ${res.status === 501 ? "The till isn't connected yet." : (res.data.error ?? "That sale didn't go through.")}`);
+      setFlash(res.status === 501 ? "The till isn't connected yet." : (res.data.error ?? "That sale didn't go through."));
     }
     setTimeout(() => setFlash(null), 4000);
   }
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-5 py-6 lg:grid-cols-[1fr_380px]">
-      <section className="flex flex-col gap-5">
-        <header className="flex flex-wrap items-center gap-4">
-          <Link href="/kiosk" className="big-btn min-h-[60px] text-[22px]">🏠 Home</Link>
-          <h1 className="text-[40px] font-bold">🧾 Till</h1>
-        </header>
-        {menu.status === "loading" && <Loading />}
-        {(menu.status === "cooking" || menu.status === "error") && <StillCooking what="The menu" error={menu.status === "error"} />}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+    <main className="mx-auto flex w-[1194px] max-w-full flex-1 flex-col gap-6 px-14 pb-10 pt-[30px]">
+      <header className="flex flex-col gap-1.5">
+        <div className="text-[20px] font-extrabold uppercase tracking-[0.14em] text-rust">Nonna&apos;s bakery</div>
+        <h1 className="m-0 text-[50px] leading-[1.05]">Till</h1>
+      </header>
+
+      <div className="flex flex-1 items-start gap-7">
+        <div className="grid flex-1 grid-cols-3 gap-4">
+          {menu.status === "loading" && <Loading />}
+          {(menu.status === "cooking" || menu.status === "error") && <StillCooking what="The menu" error={menu.status === "error"} />}
           {items.map((m) => (
-            <button key={m.id} type="button" className="tile relative py-5 text-[22px]" onClick={() => add(m.id, 1)}>
-              <span className="text-[64px] leading-none">{m.emoji}</span>
-              <span className="text-center leading-tight">{m.name}</span>
-              <span className="font-display text-[24px] text-terracotta-deep">{money(m.priceCents)}</span>
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => add(m.id, 1)}
+              className="relative flex min-h-[150px] flex-col items-start justify-between gap-2 rounded-[20px] border-[1.5px] border-linen bg-card px-[22px] py-5 text-left shadow-[0_3px_0_var(--linen-shadow)] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="h-3.5 w-3.5 rounded-full" style={{ background: CATEGORY_DOT[m.category] }} />
+                <span className="text-[17px] font-extrabold uppercase tracking-[0.08em] text-ink-soft">{m.category}</span>
+              </div>
+              <div className="font-display pr-12 text-[28px] leading-[1.1]">{m.name}</div>
+              <div className="text-[26px] font-extrabold text-rust">{money(m.priceCents)}</div>
               {cart[m.id] && (
-                <span className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-full border-[1.5px] border-linen bg-berry font-display text-[22px] text-white">
+                <span className="font-display pop-in absolute right-3.5 top-3.5 flex h-11 min-w-11 items-center justify-center rounded-full bg-wine px-2.5 text-[24px] text-card">
                   {cart[m.id]}
                 </span>
               )}
             </button>
           ))}
         </div>
-      </section>
 
-      <aside className="toon flex h-fit flex-col gap-4 p-6 lg:sticky lg:top-6">
-        <h2 className="text-[32px] font-bold">This order</h2>
-        {lines.length === 0 && <p className="text-[22px] text-cocoa-soft">Tap a treat to add it.</p>}
-        <ul className="flex flex-col gap-3">
-          {lines.map(({ item, qty }) => (
-            <li key={item.id} className="flex items-center gap-3 text-[22px] font-bold">
-              <span className="text-3xl">{item.emoji}</span>
-              <span className="flex-1">{qty} × {item.name}</span>
-              <button type="button" className="h-10 w-10 rounded-full border-[1.5px] border-linen bg-white text-[22px]" aria-label={`One less ${item.name}`} onClick={() => add(item.id, -1)}>−</button>
-            </li>
-          ))}
-        </ul>
-        <div className="flex items-baseline justify-between border-t-2 border-dashed border-linen pt-3">
-          <span className="text-[26px] font-bold">Total</span>
-          <span className="font-display text-[44px] font-bold">{money(total)}</span>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <button className="big-btn bg-sky text-[26px]" disabled={busy || lines.length === 0} onClick={() => pay("card")}>💳 Card</button>
-          <button className="big-btn btn-go text-[26px]" disabled={busy || lines.length === 0} onClick={() => pay("cash")}>💵 Cash</button>
-        </div>
-        {flash && <p className="pop-in text-center text-[24px] font-bold">{flash}</p>}
-      </aside>
+        <aside className="toon sticky top-6 flex min-h-[560px] w-[360px] shrink-0 flex-col gap-[18px] px-[26px] pb-7 pt-[26px]">
+          <h2 className="m-0 text-[32px]">This sale</h2>
+          <div className="flex flex-col gap-3.5 border-b-[3px] border-dotted border-[#c9ad84] pb-[18px]">
+            {lines.length === 0 && <p className="m-0 text-[20px] font-semibold text-ink-soft">Tap a treat to add it.</p>}
+            {lines.map(({ item, qty }) => (
+              <div key={item.id} className="flex flex-col gap-2.5">
+                <div className="flex items-baseline justify-between gap-3 text-[24px] font-extrabold">
+                  <div>{item.name}</div>
+                  <div>{money(item.priceCents * qty)}</div>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[20px] font-semibold text-ink-soft">{qty} × {money(item.priceCents)}</div>
+                  <div className="flex items-center gap-2">
+                    <button type="button" aria-label={`One less ${item.name}`} className={roundBtn} onClick={() => add(item.id, -1)}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden><path d="M5 12h14" /></svg>
+                    </button>
+                    <button type="button" aria-label={`One more ${item.name}`} className={roundBtn} onClick={() => add(item.id, 1)}>
+                      <Icon name="plus" size={22} stroke={2.4} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex-1" />
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="text-[24px] font-extrabold">Total</div>
+            <div className="font-display text-[52px] leading-none">{money(total)}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button className="big-btn btn-primary min-h-[84px] rounded-[20px] px-0" disabled={busy || lines.length === 0} onClick={() => pay("card")}>
+              <Icon name="card" size={30} /> Card
+            </button>
+            <button className="big-btn btn-go min-h-[84px] rounded-[20px] px-0" disabled={busy || lines.length === 0} onClick={() => pay("cash")}>
+              <Icon name="cash" size={30} /> Cash
+            </button>
+          </div>
+          {flash ? (
+            <p className="pop-in m-0 text-center text-[20px] font-extrabold">{flash}</p>
+          ) : (
+            <button type="button" className="min-h-12 self-center text-[20px] font-extrabold text-ink-soft underline disabled:opacity-40" disabled={lines.length === 0} onClick={() => setCart({})}>
+              Clear this sale
+            </button>
+          )}
+        </aside>
+      </div>
     </main>
   );
 }
