@@ -1,6 +1,6 @@
 "use client";
 // Lane 4. Grandma's home screen (design/home.html): Nonna's line as the headline, six doors, add a treat.
-// Voice comes from Lane 2's useNonnaEars + /api/voice (see NonnaVoice).
+// Nonna's message and Yes / No come from NonnaVoice (touch only, answers go to Lane 2's /api/voice).
 import Link from "next/link";
 import type { PrepTask, Reorder } from "@/lib/types";
 import { NonnaVoice } from "@/components/NonnaVoice";
