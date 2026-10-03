@@ -12,7 +12,9 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { SCHEMA } from "./schema";
 
-const DB_PATH = process.env.NONNA_DB_PATH ?? path.join(process.cwd(), "data", "nonna.db");
+// Vercel's filesystem is read-only except /tmp (and /tmp is per-instance and temporary), so the
+// database lives there and boot.ts re-seeds it whenever it starts empty.
+const DB_PATH = process.env.NONNA_DB_PATH ?? (process.env.VERCEL ? "/tmp/nonna.db" : path.join(process.cwd(), "data", "nonna.db"));
 
 const g = globalThis as unknown as { __nonnaDb?: DatabaseSync };
 
