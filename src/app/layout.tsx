@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito, Young_Serif } from "next/font/google";
 import "./globals.css";
+import { PageNav } from "@/components/PageNav";
 
 const serif = Young_Serif({
   variable: "--font-serif",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <div aria-hidden className="gingham" />
         {children}
+        <PageNav />
       </body>
     </html>
   );
