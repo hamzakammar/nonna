@@ -1,9 +1,10 @@
 // Lane 4. Demo controls. GET → current demo time.
-// POST { advanceHours } | { reset: true } (clock back to real time) | { resetWorld: true } (empty every table, re-seed, clock reset)
+// POST { advanceHours } | { reset: true } (clock back to real time) | { resetWorld: true, history?: days } (empty every table, re-seed, clock reset, then optionally N days of simulated sales)
 import { handle } from "@/lib/api";
 import { advance, nowIso, reset, HOUR } from "@/lib/clock";
 import { db } from "@/lib/db";
 import { seed } from "@/lib/db/seed";
+import { simulateHistory } from "@/lib/sales/simulate";
 
 /** `npm run db:reset` without deleting the file, so it works while the server holds the database open. */
 function resetWorld(): void {
@@ -29,9 +30,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const body = (await req.json()) as { advanceHours?: number; reset?: boolean; resetWorld?: boolean };
+  const body = (await req.json()) as { advanceHours?: number; reset?: boolean; resetWorld?: boolean; history?: number };
   return handle(() => {
     if (body.resetWorld) resetWorld();
+    if (body.resetWorld && body.history) simulateHistory({ days: body.history });
     if (body.reset) reset();
     if (body.advanceHours) advance(body.advanceHours * HOUR);
     return { now: nowIso() };

@@ -135,13 +135,13 @@ export default function Demo() {
       <section className="flex items-center gap-5 rounded-[20px] border-[1.5px] border-dashed border-taupe px-[26px] py-5">
         <div className="flex flex-1 flex-col gap-0.5">
           <div className="text-[21px] font-extrabold">Reset world</div>
-          <div className="text-[17px] font-semibold text-ink-soft">Wipes the database and re-seeds the catalogue and starting stock.</div>
+          <div className="text-[17px] font-semibold text-ink-soft">Wipes the database, re-seeds the catalogue and starting stock, and loads 21 days of sales history.</div>
         </div>
         <button
           className="min-h-[60px] shrink-0 rounded-full border-[1.5px] border-wine bg-card px-7 text-[20px] font-extrabold text-wine disabled:opacity-50"
           disabled={busy}
           onClick={() => {
-            if (window.confirm("Wipe the database and start the demo over?")) run("World reset", () => send("/api/sim", { body: { resetWorld: true } }));
+            if (window.confirm("Wipe the database and start the demo over with 21 days of sales?")) run("World reset with 21 days of sales", () => send("/api/sim", { body: { resetWorld: true, history: 21 } }));
           }}
         >
           Reset world
