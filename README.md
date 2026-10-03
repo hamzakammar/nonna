@@ -32,6 +32,8 @@ Copy `.env.example` → `.env.local` to add keys. Everything works without them.
 
 Find your open work: `grep -rn 'todo("lane1' src` (or `lane2`, …) and the checkboxes in your role doc.
 
+Link: nonna.hamzaammar.ca
+
 ## Scripts
 | | |
 |---|---|
